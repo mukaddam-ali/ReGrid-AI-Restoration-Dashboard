@@ -486,3 +486,269 @@ a {
   color: var(--text-secondary);
   line-height: 1.6;
 }
+
+/* Infrastructure workspace */
+.infra-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .infra-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.infra-schematic-card {
+  padding: 18px 20px;
+  min-width: 0;
+}
+
+.network-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.legend-dot-operational {
+  background: var(--op-dot);
+}
+
+.legend-dot-damaged {
+  background: var(--dmg-dot);
+}
+
+.legend-dot-critical {
+  background: var(--crit-dot);
+}
+
+.legend-dot-repair {
+  background: var(--rep-dot);
+}
+
+.legend-dot-restored {
+  background: var(--res-dot);
+}
+
+.legend-dot-facility {
+  background: var(--accent-dark);
+}
+
+.network-svg-wrap {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-alt);
+}
+
+.network-node-group {
+  cursor: pointer;
+}
+
+.network-node-group:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.network-node {
+  stroke-width: 1.5px;
+}
+
+.network-node-operational {
+  fill: var(--op-bg);
+  stroke: var(--op-dot);
+}
+
+.network-node-damaged {
+  fill: var(--dmg-bg);
+  stroke: var(--dmg-dot);
+}
+
+.network-node-critical {
+  fill: var(--crit-bg);
+  stroke: var(--crit-dot);
+}
+
+.network-node-repair {
+  fill: var(--rep-bg);
+  stroke: var(--rep-dot);
+}
+
+.network-node-restored {
+  fill: var(--res-bg);
+  stroke: var(--res-dot);
+}
+
+.network-node-critical-dot {
+  fill: var(--accent-dark);
+}
+
+.network-node-id {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.network-node-fg-operational {
+  fill: var(--op-fg);
+}
+
+.network-node-fg-damaged {
+  fill: var(--dmg-fg);
+}
+
+.network-node-fg-critical {
+  fill: var(--crit-fg);
+}
+
+.network-node-fg-repair {
+  fill: var(--rep-fg);
+}
+
+.network-node-fg-restored {
+  fill: var(--res-fg);
+}
+
+.network-node-name {
+  font-size: 9.5px;
+  fill: var(--text-secondary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Asset detail panel */
+.infra-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.infra-detail-placeholder {
+  margin: 0;
+  padding: 0;
+}
+
+.detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  letter-spacing: 0.3px;
+}
+
+.detail-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.detail-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.detail-field {
+  background: var(--surface-alt);
+  border-radius: 6px;
+  padding: 9px 11px;
+}
+
+.detail-field-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.detail-field-value {
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.detail-deps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.detail-deps-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 7px;
+}
+
+.detail-chip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: left;
+  width: 100%;
+}
+
+.detail-chip:hover {
+  border-color: var(--border-strong);
+}
+
+.detail-chip-id {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 0 0 auto;
+}
+
+.detail-chip-name {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-empty {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}

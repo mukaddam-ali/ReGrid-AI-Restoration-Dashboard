@@ -135,6 +135,7 @@ export const mockDependencies: Dependency[] = [
   { id: "DEP-4", upstreamAssetId: "FEEDER-03", downstreamAssetId: "FAC-HOSPITAL", type: "feeds" },
   { id: "DEP-5", upstreamAssetId: "GEN-01", downstreamAssetId: "LINE-12", type: "feeds" },
   { id: "DEP-6", upstreamAssetId: "LINE-12", downstreamAssetId: "SUB-02", type: "feeds" },
+  { id: "DEP-7", upstreamAssetId: "SUB-02", downstreamAssetId: "FAC-COMMS", type: "feeds" },
 ];
 
 // Non-overlapping simulated population/demand zones. These are authored

@@ -23,6 +23,7 @@ import type {
   OverviewSummary,
   PriorityPreviewItem,
 } from "@/types/overview";
+import type { InfrastructureNetwork, NetworkEdge, NetworkNode } from "@/types/infrastructure";
 
 // Frontend service boundary: UI reads through these functions rather than
 // touching mock data directly. Each call returns a Promise so a future API
@@ -58,6 +59,55 @@ export function getScenarioResult(scenario: RestorationScenario): Promise<Scenar
 
 export function getServiceAreas(): Promise<ServiceArea[]> {
   return Promise.resolve(mockServiceAreas);
+}
+
+// Tiered layout columns for the Infrastructure schematic. Critical facility
+// assets always sit in the final tier, appended after this list.
+const NETWORK_TIER_TYPES = ["Generation", "Transmission Line", "Substation", "Distribution Feeder"];
+
+function tierForAsset(asset: GridAsset): number {
+  if (isFacilityAsset(asset)) return NETWORK_TIER_TYPES.length;
+  const index = NETWORK_TIER_TYPES.indexOf(asset.type);
+  return index === -1 ? NETWORK_TIER_TYPES.length - 1 : index;
+}
+
+/**
+ * Builds the Infrastructure page's network view model: a simple tiered
+ * layout position plus immediate upstream/downstream asset ids per node,
+ * derived directly from mockDependencies so the page never has to re-derive
+ * the dependency graph itself.
+ */
+export function getInfrastructureNetwork(): Promise<InfrastructureNetwork> {
+  const rowCounters = new Map<number, number>();
+  const nodes: NetworkNode[] = mockAssets.map((asset) => {
+    const tier = tierForAsset(asset);
+    const row = rowCounters.get(tier) ?? 0;
+    rowCounters.set(tier, row + 1);
+    return {
+      assetId: asset.id,
+      name: asset.name,
+      type: asset.type,
+      status: asset.status,
+      tier,
+      row,
+      isCriticalFacility: isFacilityAsset(asset),
+      criticalFacility: asset.criticalFacility ?? null,
+      upstreamAssetIds: mockDependencies
+        .filter((dep) => dep.downstreamAssetId === asset.id)
+        .map((dep) => dep.upstreamAssetId),
+      downstreamAssetIds: mockDependencies
+        .filter((dep) => dep.upstreamAssetId === asset.id)
+        .map((dep) => dep.downstreamAssetId),
+    };
+  });
+
+  const edges: NetworkEdge[] = mockDependencies.map((dep) => ({
+    id: dep.id,
+    fromAssetId: dep.upstreamAssetId,
+    toAssetId: dep.downstreamAssetId,
+  }));
+
+  return Promise.resolve({ nodes, edges, tierCount: NETWORK_TIER_TYPES.length + 1 });
 }
 
 function isFacilityAsset(asset: GridAsset): boolean {
