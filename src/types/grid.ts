@@ -10,13 +10,19 @@ export interface GridAsset {
   populationServed?: number | null;
   demandMw?: number | null;
   assignedCrewId?: string | null;
+  /** Name of the critical facility this asset feeds, if any. */
+  criticalFacility?: string | null;
 }
+
+/** Simple, non-graph-derived status shown in the Overview snapshot. */
+export type CriticalFacilityStatus = "online" | "offline" | "at_risk" | "dependency_blocked";
 
 export interface CriticalFacility {
   id: string;
   name: string;
   type: string;
   assetId: string;
+  status: CriticalFacilityStatus;
 }
 
 export interface Dependency {
@@ -50,4 +56,20 @@ export interface RestorationScenario {
 export interface ScenarioResult {
   scenarioId: string;
   recommendations: RestorationRecommendation[];
+}
+
+/**
+ * A non-overlapping simulated population/demand zone. Unlike GridAsset
+ * fields (which are contextual per-asset figures and may overlap along a
+ * dependency chain), ServiceArea records are authored so that summing
+ * `population` or `demandMw` across any subset never double counts the
+ * same simulated customers.
+ */
+export interface ServiceArea {
+  id: string;
+  name: string;
+  population: number;
+  demandMw: number;
+  status: "online" | "offline";
+  suppliedByAssetId: string;
 }

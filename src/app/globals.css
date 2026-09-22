@@ -273,3 +273,216 @@ a {
   background: var(--res-bg);
   color: var(--res-fg);
 }
+
+/* Overview: summary metrics */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 860px) {
+  .metric-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 15px;
+}
+
+.metric-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.metric-value-neutral {
+  color: var(--text);
+}
+
+.metric-value-warning {
+  color: var(--dmg-fg);
+}
+
+.metric-value-critical {
+  color: var(--crit-fg);
+}
+
+.metric-value-positive {
+  color: var(--op-fg);
+}
+
+.metric-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Overview: two-column layout */
+.overview-columns {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 860px) {
+  .overview-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.panel-link {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.panel-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+/* Priority preview */
+.priority-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.priority-row {
+  display: grid;
+  grid-template-columns: 22px 1.4fr 90px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.priority-row:hover {
+  border-color: var(--border-strong);
+  text-decoration: none;
+}
+
+.priority-seq {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.priority-asset {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.priority-asset-id {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.priority-asset-type {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.priority-repair {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.priority-critical {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--crit-fg);
+}
+
+.priority-score {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-dark);
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .priority-row {
+    grid-template-columns: 22px 1fr 40px;
+  }
+
+  .priority-repair,
+  .priority-critical {
+    display: none;
+  }
+}
+
+/* Critical facility snapshot */
+.facility-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.facility-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.facility-name {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.facility-type {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Restoration context panel */
+.context-panel {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
