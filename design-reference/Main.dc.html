@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ReGrid AI — Restoration Dashboard</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  :root{
+    --bg:#F1F2F5; --surface:#FFFFFF; --surface-alt:#F7F8FA;
+    --sidebar:#14181F; --sidebar-line:#252B36; --sidebar-text:#9AA3B1; --sidebar-text-active:#FFFFFF;
+    --border:#E2E4E9; --border-strong:#CDD1D9;
+    --text:#161A21; --text-secondary:#5B6472; --text-tertiary:#8991A0;
+    --accent:#1D5FBF; --accent-dark:#154884; --accent-bg:#E9F0FC;
+    --op-fg:#1F7A43; --op-bg:#E7F5EC; --op-dot:#279A54;
+    --dmg-fg:#B45309; --dmg-bg:#FCF0DE; --dmg-dot:#D97F14;
+    --crit-fg:#B3261E; --crit-bg:#FBEAE8; --crit-dot:#C4342B;
+    --rep-fg:#1D5FBF; --rep-bg:#E8F0FD; --rep-dot:#1D5FBF;
+    --res-fg:#0E7A6E; --res-bg:#E2F4F1; --res-dot:#12968A;
+  }
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  *{box-sizing:border-box;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+  a{color:var(--accent);text-decoration:none;} a:hover{color:var(--accent-dark);text-decoration:underline;}
+  button{font-family:inherit;cursor:pointer;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:6px;}
+  .btn{border-radius:5px;font-size:13px;font-weight:600;padding:9px 16px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);}
+  .btn:hover{border-color:var(--text-tertiary);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+  .scrollbar::-webkit-scrollbar{width:8px;height:8px;}
+  .scrollbar::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px;}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;display:flex;align-items:stretch;background:var(--bg);">
+
+  <!-- SIDEBAR -->
+  <div style="width:216px;flex:0 0 216px;background:var(--sidebar);display:flex;flex-direction:column;padding:0 0 16px 0;position:sticky;top:0;align-self:flex-start;height:100vh;">
+    <div style="padding:22px 20px 18px 20px;border-bottom:1px solid var(--sidebar-line);">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" stroke="#5B8FE0" stroke-width="1.6"></rect><path d="M13 6L8 13H12L11 18L16 11H12L13 6Z" fill="#5B8FE0"></path></svg>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:0.2px;line-height:1.1;">ReGrid AI</div>
+          <div style="font-size:10px;color:var(--sidebar-text);letter-spacing:0.4px;text-transform:uppercase;margin-top:1px;">Restoration Planner</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 12px;display:flex;flex-direction:column;gap:2px;flex:1;">
+      <div style="font-size:10px;font-weight:600;color:#5F6673;letter-spacing:0.6px;text-transform:uppercase;padding:4px 10px 8px 10px;">Navigate</div>
+
+      <button onClick="{{goOverview}}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:6px;border:none;background:{{navBg.overview}};color:{{navColor.overview}};font-size:13.5px;font-weight:{{navWeight.overview}};text-align:left;width:100%;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;"><rect x="3" y="3" width="8" height="8" rx="1.4" fill="currentColor"></rect><rect x="13" y="3" width="8" height="8" rx="1.4" fill="currentColor" opacity="0.55"></rect><rect x="3" y="13" width="8" height="8" rx="1.4" fill="currentColor" opacity="0.55"></rect><rect x="13" y="13" width="8" height="8" rx="1.4" fill="currentColor" opacity="0.55"></rect></svg>
+        Overview
+      </button>
+
+      <button onClick="{{goInfrastructure}}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:6px;border:none;background:{{navBg.infrastructure}};color:{{navColor.infrastructure}};font-size:13.5px;font-weight:{{navWeight.infrastructure}};text-align:left;width:100%;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;"><circle cx="5" cy="6" r="2.3" fill="currentColor"></circle><circle cx="19" cy="6" r="2.3" fill="currentColor"></circle><circle cx="12" cy="13" r="2.3" fill="currentColor"></circle><circle cx="5" cy="20" r="2.3" fill="currentColor"></circle><circle cx="19" cy="20" r="2.3" fill="currentColor"></circle><path d="M6.8 7.4L10.6 11.7M17.2 7.4L13.4 11.7M10.9 14.6L6.4 18.5M13.1 14.6L17.6 18.5" stroke="currentColor" stroke-width="1.4"></path></svg>
+        Infrastructure
+      </button>
+
+      <button onClick="{{goRestoration}}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:6px;border:none;background:{{navBg.restoration}};color:{{navColor.restoration}};font-size:13.5px;font-weight:{{navWeight.restoration}};text-align:left;width:100%;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;"><rect x="3" y="4" width="18" height="3.4" rx="1" fill="currentColor"></rect><rect x="3" y="10.3" width="18" height="3.4" rx="1" fill="currentColor" opacity="0.7"></rect><rect x="3" y="16.6" width="12" height="3.4" rx="1" fill="currentColor" opacity="0.45"></rect></svg>
+        Restoration Plan
+      </button>
+
+      <button onClick="{{goScenarios}}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:6px;border:none;background:{{navBg.scenarios}};color:{{navColor.scenarios}};font-size:13.5px;font-weight:{{navWeight.scenarios}};text-align:left;width:100%;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="1.6"></path><circle cx="8" cy="6" r="2.2" fill="var(--sidebar)" stroke="currentColor" stroke-width="1.6"></circle><circle cx="16" cy="12" r="2.2" fill="var(--sidebar)" stroke="currentColor" stroke-width="1.6"></circle><circle cx="10" cy="18" r="2.2" fill="var(--sidebar)" stroke="currentColor" stroke-width="1.6"></circle></svg>
+        Scenarios
+      </button>
+    </div>
+
+    <div style="margin:0 12px;padding:13px 13px;border-radius:7px;background:#1B2029;border:1px solid var(--sidebar-line);">
+      <div style="font-size:10.5px;font-weight:700;color:#7FA8E8;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px;">AI recommends.</div>
+      <div style="font-size:10.5px;font-weight:700;color:#7FA8E8;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;">Engineers decide.</div>
+      <div style="font-size:11px;color:var(--sidebar-text);line-height:1.5;">ReGrid is decision support only. All switching and repair authorization rests with qualified engineers.</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+
+    <!-- TOP BAR -->
+    <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:var(--text);">{{viewTitle}}</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Scenario: Gulf Coast Hurricane — Regional Sector 7 Grid</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:#FCF0DE;border:1px solid #F0D3A0;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#D97F14;display:inline-block;"></span>
+          <span style="font-size:11.5px;font-weight:700;color:#8A4B08;letter-spacing:0.3px;">SIMULATED PROTOTYPE DATASET</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div style="flex:1;overflow-y:auto;padding:24px 28px 48px 28px;">
+
+      <!-- ============ OVERVIEW ============ -->
+      <sc-if value="{{isOverview}}" hint-placeholder-val="{{true}}">
+        <div>
+          <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:22px;">
+            <sc-for list="{{summaryCards}}" as="c" hint-placeholder-count="6">
+              <div class="card" style="padding:14px 15px;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:10.5px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.4px;text-transform:uppercase;">{{c.label}}</div>
+                <div class="mono" style="font-size:21px;font-weight:600;color:{{c.color}};line-height:1;">{{c.value}}</div>
+                <div style="font-size:11px;color:var(--text-secondary);">{{c.sub}}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start;">
+            <!-- Critical path snapshot -->
+            <div class="card" style="padding:18px 20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div style="font-size:14px;font-weight:700;">Critical Path Snapshot</div>
+                <button onClick="{{goInfrastructure}}" class="btn" style="padding:6px 12px;font-size:12px;">View full network →</button>
+              </div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;">Damage upstream of the regional hospital and its dependent water pumping facility.</div>
+              <div style="display:flex;flex-direction:column;gap:0;">
+                <sc-for list="{{criticalPathNodes}}" as="n" hint-placeholder-count="6">
+                  <div>
+                    <div onClick="{{n.pick}}" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:{{n.bg}};cursor:pointer;">
+                      <span style="width:8px;height:8px;border-radius:50%;background:{{n.dot}};flex:0 0 auto;"></span>
+                      <div style="flex:1;min-width:0;">
+                        <div class="mono" style="font-size:11.5px;font-weight:600;color:var(--text);">{{n.id}}</div>
+                        <div style="font-size:11.5px;color:var(--text-secondary);">{{n.name}}</div>
+                      </div>
+                      <div style="font-size:10.5px;font-weight:700;color:{{n.fg}};letter-spacing:0.3px;text-transform:uppercase;">{{n.statusLabel}}</div>
+                    </div>
+                    <sc-if value="{{n.hasArrow}}" hint-placeholder-val="{{true}}">
+                      <div style="display:flex;justify-content:center;padding:2px 0;"><svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0V13M6 13L2 9M6 13L10 9" stroke="var(--border-strong)" stroke-width="1.4" fill="none"></path></svg></div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- Priority queue preview -->
+            <div class="card" style="padding:18px 20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div style="font-size:14px;font-weight:700;">Restoration Priority Queue</div>
+                <button onClick="{{goRestoration}}" class="btn" style="padding:6px 12px;font-size:12px;">View full plan →</button>
+              </div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">Top-ranked assets, ordered by ReGrid's recommended restoration sequence.</div>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <sc-for list="{{queuePreview}}" as="q" hint-placeholder-count="4">
+                  <div onClick="{{q.pick}}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer;">
+                    <div class="mono" style="width:22px;height:22px;border-radius:5px;background:var(--accent-bg);color:var(--accent-dark);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">{{q.seq}}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div class="mono" style="font-size:12px;font-weight:600;">{{q.id}}</div>
+                      <div style="font-size:11px;color:var(--text-secondary);">{{q.type}}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div class="mono" style="font-size:13px;font-weight:700;color:var(--accent-dark);">{{q.score}}</div>
+                      <div style="font-size:10px;color:var(--text-tertiary);">priority</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px;padding:16px 20px;display:flex;align-items:center;gap:16px;background:var(--accent-bg);border-color:#C7DAF5;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;"><circle cx="12" cy="12" r="10" stroke="var(--accent-dark)" stroke-width="1.6"></circle><path d="M12 8V12.5" stroke="var(--accent-dark)" stroke-width="1.8" stroke-linecap="round"></path><circle cx="12" cy="16" r="1" fill="var(--accent-dark)"></circle></svg>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;color:var(--accent-dark);">AI recommends. Engineers decide.</div>
+              <div style="font-size:12px;color:#2C4A73;margin-top:2px;">Every sequence on this dashboard is a recommendation for review. No switching, energization or repair authorization occurs automatically — qualified engineers accept, flag, or override each item before crews are dispatched.</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ INFRASTRUCTURE ============ -->
+      <sc-if value="{{isInfrastructure}}" hint-placeholder-val="{{false}}">
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;">
+          <div class="card" style="padding:18px 20px 14px 20px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px;flex-wrap:wrap;gap:10px;">
+              <div>
+                <div style="font-size:14px;font-weight:700;">Regional Network — Working Schematic</div>
+                <div style="font-size:11.5px;color:var(--text-tertiary);margin-top:1px;max-width:520px;">The primary engineering view. Node position reflects electrical tier, not geography. Select any asset to trace its dependency path and open full detail.</div>
+              </div>
+              <div style="display:flex;gap:13px;flex-wrap:wrap;justify-content:flex-end;max-width:360px;">
+                <sc-for list="{{legend}}" as="l" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:5px;">
+                    <span style="width:9px;height:9px;border-radius:50%;background:{{l.dot}};display:inline-block;flex:0 0 auto;"></span>
+                    <span style="font-size:10.5px;color:var(--text-secondary);white-space:nowrap;">{{l.label}}</span>
+                  </div>
+                </sc-for>
+                <div style="display:flex;align-items:center;gap:5px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" style="flex:0 0 auto;"><circle cx="12" cy="12" r="9.5" stroke="#8991A0" stroke-width="1.6" fill="#fff"></circle><line x1="7" y1="17" x2="17" y2="7" stroke="#8991A0" stroke-width="1.6"></line></svg>
+                  <span style="font-size:10.5px;color:var(--text-secondary);white-space:nowrap;">De-energized</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#154884;display:inline-block;flex:0 0 auto;"></span>
+                  <span style="font-size:10.5px;color:var(--text-secondary);white-space:nowrap;">Serves critical facility</span>
+                </div>
+              </div>
+            </div>
+
+            <sc-if value="{{hasSelection}}" hint-placeholder-val="{{false}}">
+              <div style="display:flex;align-items:center;gap:8px;margin:10px 0 0 0;padding:7px 12px;border-radius:6px;background:var(--accent-bg);">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto;"></span>
+                <div style="font-size:11.5px;color:var(--accent-dark);font-weight:600;">Tracing dependency path for {{sel.id}} — related assets stay highlighted, everything else is dimmed.</div>
+              </div>
+            </sc-if>
+
+            <div style="position:relative;width:100%;height:660px;overflow:auto;margin-top:10px;border-radius:6px;background:var(--surface-alt);border:1px solid var(--border);" class="scrollbar">
+              <svg width="1100" height="660" viewBox="0 0 1100 660" style="display:block;min-width:1100px;">
+                <sc-for list="{{mapLinks}}" as="ln" hint-placeholder-count="10">
+                  <line x1="{{ln.x1}}" y1="{{ln.y1}}" x2="{{ln.x2}}" y2="{{ln.y2}}" stroke="{{ln.stroke}}" stroke-width="{{ln.width}}" stroke-dasharray="{{ln.dash}}" opacity="{{ln.opacity}}"></line>
+                </sc-for>
+                <sc-for list="{{mapNodes}}" as="nd" hint-placeholder-count="27">
+                  <g onClick="{{nd.pick}}" style="cursor:pointer;" opacity="{{nd.opacity}}">
+                    <rect x="{{nd.rx}}" y="{{nd.ry}}" width="{{nd.w}}" height="{{nd.h}}" rx="6" fill="{{nd.bg}}" stroke="{{nd.stroke}}" stroke-width="{{nd.strokeWidth}}"></rect>
+                    <circle cx="{{nd.dotx}}" cy="{{nd.doty}}" r="4" fill="{{nd.dot}}"></circle>
+                    <text x="{{nd.tx}}" y="{{nd.ty1}}" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="{{nd.fg}}">{{nd.id}}</text>
+                    <text x="{{nd.tx}}" y="{{nd.ty2}}" font-family="IBM Plex Sans" font-size="9.5" fill="var(--text-secondary)">{{nd.short}}</text>
+                    <sc-if value="{{nd.servesCritical}}" hint-placeholder-val="{{false}}">
+                      <circle cx="{{nd.csx}}" cy="{{nd.csy}}" r="4" fill="#154884"></circle>
+                    </sc-if>
+                    <sc-if value="{{nd.showNoPower}}" hint-placeholder-val="{{false}}">
+                      <circle cx="{{nd.npx}}" cy="{{nd.npy}}" r="7" fill="#FFFFFF" stroke="#8991A0" stroke-width="1.4"></circle>
+                      <line x1="{{nd.npx1}}" y1="{{nd.npy1}}" x2="{{nd.npx2}}" y2="{{nd.npy2}}" stroke="#8991A0" stroke-width="1.4"></line>
+                    </sc-if>
+                  </g>
+                </sc-for>
+              </svg>
+            </div>
+          </div>
+
+          <div class="card" style="padding:14px 16px 16px 16px;height:756px;display:flex;flex-direction:column;">
+            <div style="font-size:12.5px;font-weight:700;margin-bottom:2px;">Asset Inventory</div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:10px;">{{allAssetsCount}} simulated assets in Sector 7</div>
+            <div class="scrollbar" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:3px;">
+              <sc-for list="{{allAssetsRows}}" as="a" hint-placeholder-count="27">
+                <div onClick="{{a.pick}}" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:5px;cursor:pointer;background:{{a.rowBg}};border:1px solid {{a.rowBorder}};">
+                  <span style="width:7px;height:7px;border-radius:50%;background:{{a.dot}};flex:0 0 auto;"></span>
+                  <div style="flex:1;min-width:0;">
+                    <div class="mono" style="font-size:10.5px;font-weight:600;">{{a.id}}</div>
+                    <div style="font-size:10.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{a.name}}</div>
+                  </div>
+                  <span style="font-size:9.5px;font-weight:700;color:{{a.fg}};text-transform:uppercase;letter-spacing:0.2px;flex:0 0 auto;">{{a.statusShort}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ RESTORATION PLAN ============ -->
+      <sc-if value="{{isRestoration}}" hint-placeholder-val="{{false}}">
+        <div>
+          <div class="card" style="margin-bottom:14px;padding:13px 18px;display:flex;align-items:center;gap:12px;background:var(--accent-bg);border-color:#C7DAF5;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;"><circle cx="12" cy="12" r="10" stroke="var(--accent-dark)" stroke-width="1.6"></circle><path d="M12 8V12.5" stroke="var(--accent-dark)" stroke-width="1.8" stroke-linecap="round"></path><circle cx="12" cy="16" r="1" fill="var(--accent-dark)"></circle></svg>
+            <div style="font-size:12.5px;color:#2C4A73;">This queue is a recommendation for engineering review. Mark each item Accepted, In Review or Overridden below — ReGrid never dispatches crews or switches equipment on its own.</div>
+          </div>
+
+          <div class="card" style="padding:18px 20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+              <div style="font-size:14px;font-weight:700;">Restoration Priority Queue</div>
+              <div style="font-size:11.5px;color:var(--text-secondary);">{{queueSourceLabel}}</div>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;">Ranked by ReGrid's recommended restoration sequence. Click a row for full engineering detail, or record a decision directly using the controls on the right.</div>
+
+            <div style="display:grid;grid-template-columns:38px 84px 1.5fr 88px 72px 76px 104px 176px;gap:8px;padding:8px 10px;font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.3px;text-transform:uppercase;border-bottom:1px solid var(--border);">
+              <div>#</div><div>Asset</div><div>Why prioritized</div><div>Status</div><div>Priority</div><div>Repair</div><div>Crew</div><div>Engineer decision</div>
+            </div>
+            <sc-for list="{{priorityQueue}}" as="p" hint-placeholder-count="8">
+              <div onClick="{{p.pick}}" style="display:grid;grid-template-columns:38px 84px 1.5fr 88px 72px 76px 104px 176px;gap:8px;padding:11px 10px;border-bottom:1px solid var(--border);cursor:pointer;align-items:center;background:{{p.rowBg}};border-radius:6px;">
+                <div class="mono" style="width:22px;height:22px;border-radius:5px;background:var(--accent-bg);color:var(--accent-dark);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{p.seq}}</div>
+                <div>
+                  <div class="mono" style="font-weight:600;font-size:12px;">{{p.id}}</div>
+                  <div style="font-size:10px;color:var(--text-tertiary);">{{p.type}}</div>
+                </div>
+                <div>
+                  <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.4;">{{p.rationale}}</div>
+                  <sc-if value="{{p.hasCritical}}" hint-placeholder-val="{{false}}">
+                    <div style="font-size:10px;color:var(--crit-fg);font-weight:600;margin-top:2px;">⬤ Serves {{p.criticalFacility}}</div>
+                  </sc-if>
+                </div>
+                <div><span style="padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;background:{{p.bg}};color:{{p.fg}};white-space:nowrap;">{{p.statusLabel}}</span></div>
+                <div class="mono" style="font-size:13.5px;font-weight:700;color:var(--accent-dark);">{{p.score}}</div>
+                <div style="font-size:11.5px;color:var(--text-secondary);">{{p.repairLabel}}</div>
+                <div style="font-size:11.5px;color:var(--text-secondary);">{{p.crewLabel}}</div>
+                <div onClick="{{stop}}" style="display:flex;gap:5px;">
+                  <button onClick="{{p.pickAccept}}" aria-label="Accept SUB item for plan" title="Accept for plan" style="width:30px;height:30px;border-radius:5px;border:1.5px solid {{p.acceptBorder}};background:{{p.acceptBg}};color:{{p.acceptFg}};display:flex;align-items:center;justify-content:center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </button>
+                  <button onClick="{{p.pickReview}}" aria-label="Flag for review" title="Flag for review" style="width:30px;height:30px;border-radius:5px;border:1.5px solid {{p.reviewBorder}};background:{{p.reviewBg}};color:{{p.reviewFg}};display:flex;align-items:center;justify-content:center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 3V21M5 3H17L14.5 7L17 11H5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path></svg>
+                  </button>
+                  <button onClick="{{p.pickOverride}}" aria-label="Override sequence" title="Override sequence" style="width:30px;height:30px;border-radius:5px;border:1.5px solid {{p.overrideBorder}};background:{{p.overrideBg}};color:{{p.overrideFg}};display:flex;align-items:center;justify-content:center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 11A8 8 0 1 0 17.7 16.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M20 5V11H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ SCENARIOS ============ -->
+      <sc-if value="{{isScenarios}}" hint-placeholder-val="{{false}}">
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start;">
+          <div class="card" style="padding:18px 20px;">
+            <div style="font-size:14px;font-weight:700;margin-bottom:2px;">Scenario Controls</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:18px;">Adjust available resources and recalculate. These sliders drive a simulated planning engine — no field equipment is affected.</div>
+
+            <div style="margin-bottom:18px;">
+              <div style="font-size:11.5px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">Available Repair Crews</div>
+              <div style="display:flex;gap:8px;">
+                <sc-for list="{{crewOptions}}" as="o" hint-placeholder-count="3">
+                  <button onClick="{{o.pick}}" style="flex:1;padding:10px 6px;border-radius:6px;border:1.5px solid {{o.border}};background:{{o.bg}};color:{{o.fg}};font-weight:700;font-size:13px;">{{o.label}}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="margin-bottom:20px;">
+              <div style="font-size:11.5px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">Available Generation Capacity</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{genOptions}}" as="g" hint-placeholder-count="3">
+                  <button onClick="{{g.pick}}" style="padding:10px 12px;border-radius:6px;border:1.5px solid {{g.border}};background:{{g.bg}};color:{{g.fg}};font-weight:700;font-size:13px;text-align:left;">{{g.label}}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div class="mono" style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;padding:8px 10px;background:var(--surface-alt);border-radius:5px;">{{stagedLabel}}</div>
+            <button onClick="{{recalculate}}" class="btn btn-primary" style="width:100%;padding:12px;font-size:13.5px;">Recalculate Restoration Plan</button>
+            <sc-if value="{{scenarioApplied}}" hint-placeholder-val="{{false}}">
+              <button onClick="{{resetScenario}}" class="btn" style="width:100%;padding:9px;font-size:12.5px;margin-top:8px;">Reset to Baseline</button>
+            </sc-if>
+
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--text-tertiary);line-height:1.5;">Recalculation uses simulated frontend logic for this prototype. In production this control posts a scenario evaluation request to the restoration-scoring service.</div>
+          </div>
+
+          <div>
+            <sc-if value="{{scenarioNotApplied}}" hint-placeholder-val="{{true}}">
+              <div class="card" style="padding:40px 30px;text-align:center;color:var(--text-secondary);">
+                <div style="font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:6px;">No scenario applied yet</div>
+                <div style="font-size:12.5px;max-width:420px;margin:0 auto;">Adjust crew or generation availability on the left, then recalculate to compare the modified restoration plan against the baseline.</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{scenarioApplied}}" hint-placeholder-val="{{false}}">
+              <div>
+                <div class="card" style="padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;gap:10px;background:{{recalcBannerBg}};border-color:{{recalcBannerBorder}};">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" stroke="{{recalcBannerFg}}" stroke-width="1.8" stroke-linecap="round"></path><path d="M18 4v4h-4M6 20v-4h4" stroke="{{recalcBannerFg}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  <div style="font-size:12.5px;font-weight:600;color:{{recalcBannerFg}};">{{recalcBannerText}}</div>
+                </div>
+
+                <div class="card" style="padding:18px 20px;margin-bottom:14px;">
+                  <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Scenario Comparison</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;">
+                    <div style="font-size:10.5px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;padding-bottom:8px;">Metric</div>
+                    <div style="font-size:10.5px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;padding-bottom:8px;">Baseline (3 crews · 60 MW)</div>
+                    <div style="font-size:10.5px;font-weight:600;color:var(--accent-dark);text-transform:uppercase;letter-spacing:0.3px;padding-bottom:8px;">Modified ({{appliedCrews}} crew{{crewPlural}} · {{appliedGen}} MW)</div>
+
+                    <sc-for list="{{comparisonRows}}" as="r" hint-placeholder-count="4">
+                      <div style="padding:11px 0;border-top:1px solid var(--border);font-size:12.5px;font-weight:600;color:var(--text);">{{r.label}}</div>
+                      <div style="padding:11px 0;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-secondary);">{{r.baseline}}</div>
+                      <div style="padding:11px 0;border-top:1px solid var(--border);font-size:12.5px;color:{{r.modColor}};font-weight:600;">{{r.modified}}</div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div class="card" style="padding:18px 20px;">
+                  <div style="font-size:14px;font-weight:700;margin-bottom:2px;">Modified Restoration Sequence</div>
+                  <div style="font-size:11.5px;color:var(--text-secondary);margin-bottom:12px;">Rows shift position to reflect the applied constraints. Click any row to open its full detail — the same panel used everywhere in ReGrid.</div>
+                  <div style="display:grid;grid-template-columns:44px 90px 1.3fr 90px 90px 140px;gap:10px;padding:8px 10px;font-size:10.5px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.3px;text-transform:uppercase;border-bottom:1px solid var(--border);">
+                    <div>#</div><div>Asset</div><div>Type</div><div>Priority</div><div>Repair</div><div>Change vs baseline</div>
+                  </div>
+                  <sc-for list="{{modifiedQueueRows}}" as="m" hint-placeholder-count="8">
+                    <div onClick="{{m.pick}}" style="display:grid;grid-template-columns:44px 90px 1.3fr 90px 90px 140px;gap:10px;padding:10px 10px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;background:{{m.rowBg}};border-radius:6px;">
+                      <div class="mono" style="width:22px;height:22px;border-radius:5px;background:var(--accent-bg);color:var(--accent-dark);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{m.seq}}</div>
+                      <div class="mono" style="font-weight:600;font-size:12px;">{{m.id}}</div>
+                      <div style="font-size:12px;color:var(--text-secondary);">{{m.type}}</div>
+                      <div class="mono" style="font-size:13px;font-weight:700;color:var(--accent-dark);">{{m.score}}</div>
+                      <div style="font-size:11.5px;color:var(--text-secondary);">{{m.repairLabel}}</div>
+                      <div style="font-size:11.5px;color:{{m.shiftColor}};font-weight:600;">{{m.shiftLabel}}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <!-- ============ ASSET DETAIL DRAWER ============ -->
+  <sc-if value="{{hasSelection}}" hint-placeholder-val="{{false}}">
+    <div style="position:fixed;inset:0;background:rgba(20,24,31,0.42);z-index:40;" onClick="{{closeDetail}}">
+      <div onClick="{{stop}}" class="scrollbar" style="position:absolute;top:0;right:0;bottom:0;width:460px;max-width:92vw;background:var(--surface);box-shadow:-8px 0 28px rgba(20,24,31,0.18);overflow-y:auto;padding:22px 24px 40px 24px;">
+
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;">
+          <div>
+            <div class="mono" style="font-size:12px;font-weight:700;color:var(--text-tertiary);letter-spacing:0.3px;">{{sel.id}}</div>
+            <div style="font-size:17px;font-weight:700;margin-top:2px;">{{sel.name}}</div>
+          </div>
+          <button onClick="{{closeDetail}}" aria-label="Close detail panel" style="border:none;background:var(--surface-alt);border-radius:6px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);">
+            <svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 4L20 20M20 4L4 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+          </button>
+        </div>
+        <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;background:{{sel.bg}};color:{{sel.fg}};">{{sel.statusLabel}}</span>
+          <span style="padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;background:var(--surface-alt);color:var(--text-secondary);border:1px solid var(--border);">{{sel.decisionLabel}}</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div style="background:var(--surface-alt);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;">Asset Type</div>
+            <div style="font-size:13px;font-weight:600;margin-top:3px;">{{sel.type}}</div>
+          </div>
+          <div style="background:var(--surface-alt);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;">Damage Severity</div>
+            <div style="font-size:13px;font-weight:600;margin-top:3px;">{{sel.severityLabel}}</div>
+          </div>
+          <div style="background:var(--surface-alt);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;">Est. Repair Time</div>
+            <div class="mono" style="font-size:13px;font-weight:600;margin-top:3px;">{{sel.repairLabel}}</div>
+          </div>
+          <div style="background:var(--surface-alt);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;">Population Served</div>
+            <div class="mono" style="font-size:13px;font-weight:600;margin-top:3px;">{{sel.popLabel}}</div>
+          </div>
+          <div style="background:var(--surface-alt);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;">Demand</div>
+            <div class="mono" style="font-size:13px;font-weight:600;margin-top:3px;">{{sel.demandLabel}}</div>
+          </div>
+          <div style="background:var(--surface-alt);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;">Assigned Crew</div>
+            <div style="font-size:13px;font-weight:600;margin-top:3px;">{{sel.crewLabel}}</div>
+          </div>
+          <div style="background:var(--accent-bg);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--accent-dark);text-transform:uppercase;letter-spacing:0.3px;">Priority Score</div>
+            <div class="mono" style="font-size:15px;font-weight:700;margin-top:3px;color:var(--accent-dark);">{{sel.scoreLabel}}</div>
+          </div>
+          <div style="background:var(--accent-bg);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:600;color:var(--accent-dark);text-transform:uppercase;letter-spacing:0.3px;">Restoration Sequence</div>
+            <div class="mono" style="font-size:13px;font-weight:700;margin-top:3px;color:var(--accent-dark);">{{sel.seqLabel}}</div>
+          </div>
+        </div>
+
+        <sc-if value="{{sel.hasCritical}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:6px;background:var(--crit-bg);margin-bottom:14px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--crit-dot);flex:0 0 auto;"></span>
+            <div style="font-size:12px;color:var(--crit-fg);font-weight:600;">Critical facility served: {{sel.criticalFacility}}</div>
+          </div>
+        </sc-if>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+          <div>
+            <div style="font-size:10.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:7px;">Upstream Dependencies</div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <sc-if value="{{sel.hasUpstream}}" hint-placeholder-val="{{false}}">
+                <sc-for list="{{sel.upstreamChips}}" as="u" hint-placeholder-count="1">
+                  <button onClick="{{u.pick}}" style="display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:5px;border:1px solid var(--border);background:var(--surface);text-align:left;">
+                    <span class="mono" style="font-size:10.5px;font-weight:700;color:var(--text);">{{u.id}}</span>
+                    <span style="font-size:10.5px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{u.name}}</span>
+                  </button>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{sel.hasNoUpstream}}" hint-placeholder-val="{{true}}">
+                <div style="font-size:11.5px;color:var(--text-tertiary);padding:6px 0;">None — top of chain</div>
+              </sc-if>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:7px;">Downstream Dependencies</div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <sc-if value="{{sel.hasDownstream}}" hint-placeholder-val="{{false}}">
+                <sc-for list="{{sel.downstreamChips}}" as="dn" hint-placeholder-count="1">
+                  <button onClick="{{dn.pick}}" style="display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:5px;border:1px solid var(--border);background:var(--surface);text-align:left;">
+                    <span class="mono" style="font-size:10.5px;font-weight:700;color:var(--text);">{{dn.id}}</span>
+                    <span style="font-size:10.5px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{dn.name}}</span>
+                  </button>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{sel.hasNoDownstream}}" hint-placeholder-val="{{true}}">
+                <div style="font-size:11.5px;color:var(--text-tertiary);padding:6px 0;">None — end of chain</div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <div style="font-size:11.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:10px;">Dependency Chain Visualization</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <sc-for list="{{sel.chain}}" as="c" hint-placeholder-count="5">
+              <div>
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:6px;border:1.5px solid {{c.border}};background:{{c.bg}};">
+                  <span style="width:7px;height:7px;border-radius:50%;background:{{c.dot}};flex:0 0 auto;"></span>
+                  <div style="flex:1;min-width:0;">
+                    <div class="mono" style="font-size:11px;font-weight:700;color:{{c.fg}};">{{c.id}}</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">{{c.label}}</div>
+                  </div>
+                  <sc-if value="{{c.isCurrent}}" hint-placeholder-val="{{false}}">
+                    <span style="font-size:9.5px;font-weight:700;color:var(--accent-dark);text-transform:uppercase;letter-spacing:0.3px;">Selected</span>
+                  </sc-if>
+                </div>
+                <sc-if value="{{c.hasArrow}}" hint-placeholder-val="{{true}}">
+                  <div style="display:flex;justify-content:center;padding:1px 0;"><svg width="10" height="14" viewBox="0 0 10 14"><path d="M5 0V11M5 11L2 8M5 11L8 8" stroke="var(--border-strong)" stroke-width="1.3" fill="none"></path></svg></div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:8px;line-height:1.5;">Restoring a downstream asset provides no benefit until every upstream link in this chain is energized.</div>
+        </div>
+
+        <sc-if value="{{sel.hasScore}}" hint-placeholder-val="{{false}}">
+          <div style="margin-bottom:18px;padding:14px 16px;border-radius:8px;background:var(--surface-alt);border:1px solid var(--border);">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px;">
+              <div style="font-size:11.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.3px;">Why is this prioritized?</div>
+              <div><span class="mono" style="font-size:19px;font-weight:700;color:var(--accent-dark);">{{sel.score}}</span><span style="font-size:11px;color:var(--text-tertiary);"> / 100</span></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:10px;">Recommended sequence #{{sel.seq}} · illustrative frontend scoring only</div>
+            <sc-for list="{{sel.breakdown}}" as="b" hint-placeholder-count="5">
+              <div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px;">
+                  <span style="color:var(--text-secondary);">{{b.label}}</span>
+                  <span class="mono" style="font-weight:600;">+{{b.value}}</span>
+                </div>
+                <div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;">
+                  <div style="height:100%;border-radius:3px;background:var(--accent);width:{{b.pct}}%;"></div>
+                </div>
+              </div>
+            </sc-for>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.55;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">{{sel.explanation}}</div>
+          </div>
+        </sc-if>
+
+        <div>
+          <div style="font-size:11.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:9px;">Engineer Decision Required</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;gap:7px;">
+              <button onClick="{{acceptAsset}}" style="flex:1;padding:10px;border-radius:6px;border:1.5px solid {{sel.acceptBorder}};background:{{sel.acceptBg}};color:{{sel.acceptFg}};font-weight:700;font-size:12.5px;">Accept for Plan</button>
+              <button onClick="{{reviewAsset}}" style="flex:1;padding:10px;border-radius:6px;border:1.5px solid {{sel.reviewBorder}};background:{{sel.reviewBg}};color:{{sel.reviewFg}};font-weight:700;font-size:12.5px;">Flag for Review</button>
+            </div>
+            <button onClick="{{overrideAsset}}" style="padding:10px;border-radius:6px;border:1.5px solid {{sel.overrideBorder}};background:{{sel.overrideBg}};color:{{sel.overrideFg}};font-weight:700;font-size:12.5px;">Override Sequence</button>
+          </div>
+          <div style="font-size:10.5px;color:var(--text-tertiary);margin-top:8px;line-height:1.5;">Decisions are recorded against the plan for engineer sign-off. ReGrid does not switch, energize or dispatch automatically.</div>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1024}}'>
+
+var STATUS = {
+  operational: {label:'Operational', fg:'#1F7A43', bg:'#E7F5EC', dot:'#279A54'},
+  damaged:     {label:'Damaged',     fg:'#B45309', bg:'#FCF0DE', dot:'#D97F14'},
+  critical:    {label:'Critical',    fg:'#B3261E', bg:'#FBEAE8', dot:'#C4342B'},
+  repair:      {label:'Under Repair',fg:'#1D5FBF', bg:'#E8F0FD', dot:'#1D5FBF'},
+  restored:    {label:'Restored',    fg:'#0E7A6E', bg:'#E2F4F1', dot:'#12968A'}
+};
+
+var TIERS = {gen:0, line:1, sub:2, feeder:3, facility:4};
+
+var ASSETS = [
+  {id:'GEN-01', name:'Northside Generation Station', type:'Generation', tier:'gen', row:0, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:[], downstream:['LINE-05','LINE-12'], score:null, seq:null},
+  {id:'GEN-02', name:'Riverside Peaker Plant', type:'Generation', tier:'gen', row:6, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:[], downstream:['LINE-08'], score:null, seq:null},
+
+  {id:'LINE-05', name:'Northside Trunk', type:'Transmission Line', tier:'line', row:0, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['GEN-01'], downstream:['SUB-04','SUB-01'], score:null, seq:null},
+  {id:'LINE-12', name:'Eastline Trunk', type:'Transmission Line', tier:'line', row:3, status:'damaged', severity:'Moderate', repair:5, pop:21000, demand:5.4, critical:null, crew:null, upstream:['GEN-01'], downstream:['SUB-02','SUB-03'], score:88, seq:2},
+  {id:'LINE-08', name:'Riverside Trunk', type:'Transmission Line', tier:'line', row:6, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['GEN-02'], downstream:['SUB-05','SUB-06'], score:null, seq:null},
+
+  {id:'SUB-01', name:'Harborview Substation', type:'Substation', tier:'sub', row:2, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['LINE-05'], downstream:['FEEDER-01'], score:null, seq:null},
+  {id:'SUB-02', name:'Eastline Substation', type:'Substation', tier:'sub', row:3, status:'damaged', severity:'Severe', repair:5, pop:9800, demand:3.1, critical:'Communications Tower', crew:null, upstream:['LINE-12'], downstream:['FEEDER-06','FEEDER-02'], score:81, seq:3},
+  {id:'SUB-03', name:'Northgate Substation', type:'Substation', tier:'sub', row:5, status:'repair', severity:'Minor', repair:2, pop:6500, demand:1.8, critical:null, crew:'Crew Alpha', upstream:['LINE-12'], downstream:['FEEDER-08'], score:63, seq:6},
+  {id:'SUB-04', name:'Meridian Substation', type:'Substation', tier:'sub', row:0, status:'damaged', severity:'Severe', repair:6, pop:18400, demand:6.2, critical:'Regional Medical Center (Hospital)', crew:'Crew Bravo', upstream:['LINE-05'], downstream:['FEEDER-03','FEEDER-04'], score:94, seq:1},
+  {id:'SUB-05', name:'Riverside Substation', type:'Substation', tier:'sub', row:6, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['LINE-08'], downstream:['FEEDER-05'], score:null, seq:null},
+  {id:'SUB-06', name:'Southgate Substation', type:'Substation', tier:'sub', row:7, status:'damaged', severity:'Moderate', repair:4, pop:7200, demand:2.4, critical:null, crew:'Crew Charlie', upstream:['LINE-08'], downstream:['FEEDER-07'], score:74, seq:4},
+
+  {id:'FEEDER-01', name:'Zone A Distribution Feeder', type:'Distribution Feeder', tier:'feeder', row:2, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['SUB-01'], downstream:['ZONE-A'], score:null, seq:null},
+  {id:'FEEDER-02', name:'Zone B Distribution Feeder', type:'Distribution Feeder', tier:'feeder', row:4, status:'damaged', severity:'Moderate', repair:3, pop:9800, demand:2.0, critical:null, crew:null, upstream:['SUB-02'], downstream:['ZONE-B'], score:55, seq:7},
+  {id:'FEEDER-03', name:'Hospital Distribution Feeder', type:'Distribution Feeder', tier:'feeder', row:0, status:'damaged', severity:'Minor', repair:2, pop:null, demand:1.1, critical:'Regional Medical Center (Hospital)', crew:null, upstream:['SUB-04'], downstream:['FAC-HOSPITAL'], score:70, seq:5},
+  {id:'FEEDER-04', name:'Water Pumping Feeder', type:'Distribution Feeder', tier:'feeder', row:1, status:'damaged', severity:'Minor', repair:2, pop:null, demand:0.6, critical:'Westside Water Pumping Station', crew:null, upstream:['SUB-04'], downstream:['FAC-WATER'], score:null, seq:null},
+  {id:'FEEDER-05', name:'EOC Distribution Feeder', type:'Distribution Feeder', tier:'feeder', row:6, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:'Emergency Operations Center', crew:null, upstream:['SUB-05'], downstream:['FAC-EOC'], score:null, seq:null},
+  {id:'FEEDER-06', name:'Communications Feeder', type:'Distribution Feeder', tier:'feeder', row:3, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:'Regional Communications Tower', crew:null, upstream:['SUB-02'], downstream:['FAC-COMMS'], score:null, seq:null},
+  {id:'FEEDER-07', name:'Zone D Distribution Feeder', type:'Distribution Feeder', tier:'feeder', row:7, status:'damaged', severity:'Minor', repair:1.5, pop:4100, demand:1.0, critical:null, crew:null, upstream:['SUB-06'], downstream:['ZONE-D'], score:48, seq:8},
+  {id:'FEEDER-08', name:'Zone C Distribution Feeder', type:'Distribution Feeder', tier:'feeder', row:5, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['SUB-03'], downstream:['ZONE-C'], score:null, seq:null},
+
+  {id:'FAC-HOSPITAL', name:'Regional Medical Center', type:'Critical Facility — Hospital', tier:'facility', row:0, status:'critical', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['FEEDER-03'], downstream:[], score:null, seq:null},
+  {id:'FAC-WATER', name:'Westside Water Pumping Station', type:'Critical Facility — Water', tier:'facility', row:1, status:'damaged', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['FEEDER-04'], downstream:[], score:null, seq:null},
+  {id:'FAC-EOC', name:'Emergency Operations Center', type:'Critical Facility — EOC', tier:'facility', row:6, status:'operational', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['FEEDER-05'], downstream:[], score:null, seq:null},
+  {id:'FAC-COMMS', name:'Regional Communications Tower', type:'Critical Facility — Comms', tier:'facility', row:3, status:'damaged', severity:null, repair:null, pop:null, demand:null, critical:null, crew:null, upstream:['FEEDER-06'], downstream:[], score:null, seq:null},
+  {id:'ZONE-A', name:'Residential Zone A', type:'Residential Service Zone', tier:'facility', row:2, status:'operational', severity:null, repair:null, pop:18000, demand:null, critical:null, crew:null, upstream:['FEEDER-01'], downstream:[], score:null, seq:null},
+  {id:'ZONE-B', name:'Residential Zone B', type:'Residential Service Zone', tier:'facility', row:4, status:'damaged', severity:null, repair:null, pop:9800, demand:null, critical:null, crew:null, upstream:['FEEDER-02'], downstream:[], score:null, seq:null},
+  {id:'ZONE-C', name:'Residential Zone C', type:'Residential Service Zone', tier:'facility', row:5, status:'operational', severity:null, repair:null, pop:6500, demand:null, critical:null, crew:null, upstream:['FEEDER-08'], downstream:[], score:null, seq:null},
+  {id:'ZONE-D', name:'Residential Zone D', type:'Residential Service Zone', tier:'facility', row:7, status:'damaged', severity:null, repair:null, pop:4100, demand:null, critical:null, crew:null, upstream:['FEEDER-07'], downstream:[], score:null, seq:null}
+];
+
+var BREAKDOWNS = {
+  'SUB-04': [{label:'Critical facility impact', value:30},{label:'Population impact', value:24},{label:'Dependency impact', value:20},{label:'Repair feasibility', value:12},{label:'Resource availability', value:8}],
+  'LINE-12': [{label:'Dependency impact', value:32},{label:'Population impact', value:26},{label:'Repair feasibility', value:18},{label:'Critical facility impact', value:8},{label:'Resource availability', value:4}],
+  'SUB-02': [{label:'Critical facility impact', value:26},{label:'Population impact', value:20},{label:'Dependency impact', value:16},{label:'Repair feasibility', value:12},{label:'Resource availability', value:7}],
+  'SUB-06': [{label:'Population impact', value:22},{label:'Repair feasibility', value:20},{label:'Dependency impact', value:16},{label:'Critical facility impact', value:8},{label:'Resource availability', value:8}],
+  'FEEDER-03': [{label:'Critical facility impact', value:28},{label:'Repair feasibility', value:20},{label:'Dependency impact', value:12},{label:'Population impact', value:6},{label:'Resource availability', value:4}],
+  'SUB-03': [{label:'Repair feasibility', value:22},{label:'Population impact', value:18},{label:'Dependency impact', value:12},{label:'Resource availability', value:8},{label:'Critical facility impact', value:3}],
+  'FEEDER-02': [{label:'Population impact', value:20},{label:'Repair feasibility', value:16},{label:'Dependency impact', value:12},{label:'Resource availability', value:5},{label:'Critical facility impact', value:2}],
+  'FEEDER-07': [{label:'Repair feasibility', value:18},{label:'Population impact', value:14},{label:'Dependency impact', value:10},{label:'Resource availability', value:4},{label:'Critical facility impact', value:2}]
+};
+
+var EXPLANATIONS = {
+  'SUB-04': 'SUB-04 is highly prioritized because it supplies a critical hospital, serves approximately 18,400 residents, and enables downstream restoration of a water pumping facility.',
+  'LINE-12': 'LINE-12 is prioritized second because its restoration is a prerequisite for two downstream substations — SUB-02 and SUB-03 — including the communications tower and two residential zones behind them.',
+  'SUB-02': 'SUB-02 ranks third: it feeds the regional communications tower and Zone B, but cannot be re-energized until LINE-12 is restored upstream.',
+  'SUB-06': 'SUB-06 serves Zone D and is already staffed by Crew Charlie. Its repair proceeds in parallel with the eastern branch and does not block other critical facilities.',
+  'FEEDER-03': 'FEEDER-03 delivers the final leg of power into the hospital. It is a short, low-complexity repair, but only becomes effective once SUB-04 is restored.',
+  'SUB-03': 'SUB-03 repair is already underway with Crew Alpha on site. Remaining priority reflects the residual repair time rather than new dispatch impact.',
+  'FEEDER-02': 'FEEDER-02 restores Zone B residential service once SUB-02 is back online. Its population impact is moderate and it carries no critical facility.',
+  'FEEDER-07': 'FEEDER-07 restores Zone D residential service. It is the lowest-impact item in the current queue and depends on SUB-06 completing first.'
+};
+
+var CREWS_BASELINE = [
+  {name:'Crew Alpha', assetId:'SUB-03', eta:'2h'},
+  {name:'Crew Bravo', assetId:'SUB-04', eta:'6h'},
+  {name:'Crew Charlie', assetId:'SUB-06', eta:'4h'}
+];
+
+var PRIORITY_MODIFIED = {
+  '2-60': null, '2-51': null,
+  key: function(c,g){ return c+'-'+g; }
+};
+
+function buildModifiedQueue(crews, gen){
+  var constrained = (crews < 3) || (gen < 60);
+  if (!constrained) {
+    return ASSETS.filter(function(a){return a.score;}).map(function(a){
+      return {id:a.id, type:a.type, score:a.score, seq:a.seq, repair:a.repair, shift:0};
+    }).sort(function(x,y){return x.seq-y.seq;});
+  }
+  var crewPenalty = crews <= 1 ? 3 : (crews === 2 ? 1 : 0);
+  var genPenalty = gen <= 42 ? 2 : (gen <= 51 ? 1 : 0);
+  var rows = [
+    {id:'SUB-04', type:'Substation', score:94, repair:6, group:0},
+    {id:'LINE-12', type:'Transmission Line', score:90, repair:5, group:0},
+    {id:'SUB-02', type:'Substation', score:84, repair:5 + genPenalty, group:0},
+    {id:'FEEDER-03', type:'Distribution Feeder', score:72, repair:2, group:0},
+    {id:'SUB-03', type:'Substation', score:60, repair:2, group:0},
+    {id:'FEEDER-02', type:'Distribution Feeder', score:58, repair:3 + genPenalty, group:1},
+    {id:'SUB-06', type:'Substation', score:52 - (crewPenalty*8), repair:4 + (crewPenalty*3), group: crews<=2?2:0},
+    {id:'FEEDER-07', type:'Distribution Feeder', score:30 - (crewPenalty*6), repair:1.5 + (crewPenalty*3), group: crews<=2?2:0}
+  ];
+  rows.sort(function(a,b){ return b.score - a.score; });
+  rows.forEach(function(r, i){ r.seq = i+1; });
+  var baseSeq = {'SUB-04':1,'LINE-12':2,'SUB-02':3,'FEEDER-03':5,'SUB-03':6,'FEEDER-02':7,'SUB-06':4,'FEEDER-07':8};
+  rows.forEach(function(r){ r.shift = baseSeq[r.id] - r.seq; });
+  return rows;
+}
+
+function fmtRepair(h){
+  if (h == null) return '—';
+  return (h % 1 === 0 ? h : h.toFixed(1)) + 'h';
+}
+function fmtNum(n){
+  if (n == null) return '—';
+  return n.toLocaleString('en-US');
+}
+
+class Component extends DCLogic {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      view: 'overview',
+      selectedId: null,
+      scenarioCrews: 3,
+      scenarioGen: 60,
+      scenarioApplied: false,
+      appliedCrews: 3,
+      appliedGen: 60,
+      decisions: {}
+    };
+  }
+
+  setView(v){ this.setState({view: v, selectedId: null}); }
+  select(id){ this.setState({selectedId: id}); }
+  close(){ this.setState({selectedId: null}); }
+  stopProp(e){ if (e && e.stopPropagation) e.stopPropagation(); }
+  setCrews(n){ this.setState({scenarioCrews: n}); }
+  setGen(n){ this.setState({scenarioGen: n}); }
+  recalc(){ this.setState({scenarioApplied: true, appliedCrews: this.state.scenarioCrews, appliedGen: this.state.scenarioGen}); }
+  resetScenario(){ this.setState({scenarioApplied:false, scenarioCrews:3, scenarioGen:60, appliedCrews:3, appliedGen:60}); }
+  decide(status){
+    if (!this.state.selectedId) return;
+    this.decideForId(this.state.selectedId, status);
+  }
+  decideForId(id, status){
+    var d = Object.assign({}, this.state.decisions);
+    d[id] = (d[id] === status) ? null : status;
+    this.setState({decisions: d});
+  }
+
+  assetById(id){ return ASSETS.filter(function(a){return a.id===id;})[0]; }
+
+  isEnergized(id, seen){
+    seen = seen || {};
+    if (seen[id]) return true;
+    seen[id] = true;
+    var a = this.assetById(id);
+    if (!a) return true;
+    if (a.status === 'damaged' || a.status === 'critical') return false;
+    if (!a.upstream || a.upstream.length === 0) return true;
+    var self = this;
+    return a.upstream.every(function(u){ return self.isEnergized(u, seen); });
+  }
+
+  relatedSet(id){
+    var self = this;
+    var out = {};
+    (function walkUp(cur){ if (out[cur]) return; out[cur] = true; var as = self.assetById(cur); if (as) (as.upstream||[]).forEach(walkUp); })(id);
+    (function walkDown(cur){ if (out[cur]) return; out[cur] = true; var as = self.assetById(cur); if (as) (as.downstream||[]).forEach(walkDown); })(id);
+    return out;
+  }
+
+  renderVals(){
+    var self = this;
+    var st = this.state;
+
+    var navKeys = ['overview','infrastructure','restoration','scenarios'];
+    var navBg = {}, navColor = {}, navWeight = {};
+    navKeys.forEach(function(k){
+      var on = st.view === k;
+      navBg[k] = on ? '#232A36' : 'transparent';
+      navColor[k] = on ? '#FFFFFF' : '#9AA3B1';
+      navWeight[k] = on ? '600' : '500';
+    });
+
+    var titles = {overview:'Restoration Dashboard', infrastructure:'Infrastructure', restoration:'Restoration Plan', scenarios:'Scenario Simulation'};
+
+    // Summary cards (baseline / always current grid state, independent of scenario controls)
+    var damaged = ASSETS.filter(function(a){ return a.status==='damaged' || a.status==='repair'; });
+    var summaryCards = [
+      {label:'Grid Status', value:'Degraded', sub: damaged.length + ' of ' + ASSETS.filter(function(a){return a.tier!=='facility';}).length + ' grid assets affected', color:'#B45309'},
+      {label:'Damaged Assets', value: String(damaged.length), sub:'Across substations, lines & feeders', color:'#B45309'},
+      {label:'Critical Facilities Offline', value:'3 / 4', sub:'Hospital · Water · Comms offline', color:'#B3261E'},
+      {label:'Available Repair Crews', value:'3', sub:'Alpha · Bravo · Charlie deployed', color:'#1D5FBF'},
+      {label:'Population Without Power', value: fmtNum(46200), sub:'Simulated regional estimate', color:'#161A21'},
+      {label:'Est. Demand Offline', value:'16.1 MW', sub:'Simulated aggregate demand', color:'#161A21'}
+    ];
+
+    // Critical path snapshot (hospital chain)
+    var pathIds = ['GEN-01','LINE-05','SUB-04','FEEDER-03','FAC-HOSPITAL','FAC-WATER'];
+    var criticalPathNodes = pathIds.map(function(id, i){
+      var a = self.assetById(id);
+      var s = STATUS[a.status];
+      return {id:a.id, name:a.name, statusLabel:s.label, bg:s.bg, fg:s.fg, dot:s.dot, hasArrow: i < pathIds.length-1, pick: function(){ self.select(a.id); }};
+    });
+
+    // Priority queue (baseline, full + preview)
+    var priorityBaseline = ASSETS.filter(function(a){ return a.score != null; }).sort(function(x,y){return x.seq-y.seq;});
+    var queuePreview = priorityBaseline.slice(0,4).map(function(a){
+      return {id:a.id, type:a.type, seq:a.seq, score:a.score, pick:function(){ self.select(a.id); }};
+    });
+
+    var priorityQueue = priorityBaseline.map(function(a){
+      var s = STATUS[a.status];
+      var dec = st.decisions[a.id];
+      var decMap = {accepted:{l:'Accepted', bg:'#E2F4F1', fg:'#0E7A6E'}, review:{l:'In Review', bg:'#FCF0DE', fg:'#B45309'}, override:{l:'Overridden', bg:'#FBEAE8', fg:'#B3261E'}};
+      var decInfo = dec ? decMap[dec] : {l:'Pending Review', bg:'#F1F2F5', fg:'#5B6472'};
+      function actionStyle(kind){
+        var active = dec === kind;
+        var palette = {accepted:['#0E7A6E','#E2F4F1'], review:['#B45309','#FCF0DE'], override:['#B3261E','#FBEAE8']};
+        var p = palette[kind];
+        return active ? {border:p[0], bg:p[1], fg:p[0]} : {border:'#E2E4E9', bg:'#FFFFFF', fg:'#8991A0'};
+      }
+      var accS = actionStyle('accepted'), revS = actionStyle('review'), ovrS = actionStyle('override');
+      var rationale = (EXPLANATIONS[a.id] || '').split('. ')[0];
+      if (rationale) rationale += '.';
+      return {
+        id:a.id, type:a.type, seq:a.seq, score:a.score, statusLabel:s.label, bg:s.bg, fg:s.fg,
+        repairLabel: fmtRepair(a.repair), crewLabel: a.crew || 'Unassigned',
+        hasCritical: !!a.critical, criticalFacility: a.critical, rationale: rationale,
+        decisionLabel: decInfo.l, decisionBg: decInfo.bg, decisionFg: decInfo.fg,
+        isSelected: st.selectedId === a.id,
+        rowBg: st.selectedId === a.id ? 'var(--accent-bg)' : 'transparent',
+        acceptBorder: accS.border, acceptBg: accS.bg, acceptFg: accS.fg,
+        reviewBorder: revS.border, reviewBg: revS.bg, reviewFg: revS.fg,
+        overrideBorder: ovrS.border, overrideBg: ovrS.bg, overrideFg: ovrS.fg,
+        pick: function(){ self.select(a.id); },
+        pickAccept: function(e){ self.stopProp(e); self.decideForId(a.id, 'accepted'); },
+        pickReview: function(e){ self.stopProp(e); self.decideForId(a.id, 'review'); },
+        pickOverride: function(e){ self.stopProp(e); self.decideForId(a.id, 'override'); }
+      };
+    });
+
+    // Map layout
+    var COLX = {gen:60, line:260, sub:460, feeder:670, facility:880};
+    var ROWY = function(r){ return 40 + r*76; };
+    var NODEW = {gen:150, line:150, sub:150, feeder:160, facility:170};
+    var NODEH = 48;
+
+    var related = st.selectedId ? self.relatedSet(st.selectedId) : null;
+
+    var mapNodes = ASSETS.map(function(a){
+      var s = STATUS[a.status];
+      var energized = self.isEnergized(a.id);
+      var isSel = st.selectedId === a.id;
+      var isRelated = !related || related[a.id];
+      var rx = COLX[a.tier], ry = ROWY(a.row), w = NODEW[a.tier], h = NODEH;
+      var baseOpacity = energized ? 1 : 0.6;
+      var showNoPower = !energized && a.status === 'operational';
+      return {
+        id:a.id, short:a.name.length>22 ? a.name.slice(0,21)+'…' : a.name,
+        rx:rx, ry:ry, w:w, h:h,
+        dotx: rx+14, doty: ry+h/2,
+        tx: rx+24, ty1: ry+h/2-4, ty2: ry+h/2+13,
+        bg: s.bg,
+        stroke: isSel ? '#1D5FBF' : ((a.status==='damaged'||a.status==='critical') ? s.dot : 'var(--border-strong)'),
+        strokeWidth: isSel ? 3 : 1.4,
+        fg: s.fg, dot: s.dot,
+        opacity: isRelated ? baseOpacity : baseOpacity * 0.3,
+        servesCritical: !!a.critical,
+        csx: rx+9, csy: ry+9,
+        showNoPower: showNoPower,
+        npx: rx+w-14, npy: ry+10, npx1: rx+w-19, npy1: ry+15, npx2: rx+w-9, npy2: ry+5,
+        pick: function(){ self.select(a.id); }
+      };
+    });
+    var nodeCenter = {};
+    ASSETS.forEach(function(a){
+      var rx=COLX[a.tier], ry=ROWY(a.row), w=NODEW[a.tier];
+      nodeCenter[a.id] = {x: rx+w, y: ry+NODEH/2, x0: rx};
+    });
+    var mapLinks = [];
+    ASSETS.forEach(function(a){
+      (a.downstream||[]).forEach(function(dId){
+        var from = nodeCenter[a.id], to = nodeCenter[dId];
+        if (!from || !to) return;
+        var energizedLink = self.isEnergized(a.id) && self.isEnergized(dId);
+        var linkRelated = !related || (related[a.id] && related[dId]);
+        mapLinks.push({x1:from.x, y1:from.y, x2:to.x0, y2:to.y, stroke: energizedLink ? '#B7BEC9' : '#DADEE5', width: energizedLink?1.6:1.3, dash: energizedLink?'0':'3,3', opacity: linkRelated ? 1 : 0.25});
+      });
+    });
+
+    var legend = ['operational','damaged','critical','repair','restored'].map(function(k){
+      return {label: STATUS[k].label, dot: STATUS[k].dot};
+    });
+
+    var STATUS_SHORT = {operational:'OPER', damaged:'DMG', critical:'CRIT', repair:'REPR', restored:'REST'};
+    var allAssetsRows = ASSETS.map(function(a){
+      var s = STATUS[a.status];
+      var isSel = st.selectedId === a.id;
+      return {
+        id:a.id, name:a.name, type:a.type, statusLabel:s.label, bg:s.bg, fg:s.fg, dot:s.dot,
+        statusShort: STATUS_SHORT[a.status],
+        criticalShort: a.critical ? a.critical.split('(')[0].trim() : '—',
+        rowBg: isSel ? 'var(--accent-bg)' : 'var(--surface)',
+        rowBorder: isSel ? '#1D5FBF' : 'var(--border)',
+        pick:function(){ self.select(a.id); }
+      };
+    });
+    var allAssetsCount = ASSETS.length;
+
+    // Scenario option pills
+    var crewOptions = [3,2,1].map(function(n){
+      var on = st.scenarioCrews === n;
+      return {label: n + (n===1?' Crew':' Crews'), border: on ? '#1D5FBF' : '#E2E4E9', bg: on ? '#E9F0FC' : '#FFFFFF', fg: on ? '#154884' : '#5B6472', pick: function(){ self.setCrews(n); }};
+    });
+    var genOptions = [60,51,42].map(function(n){
+      var on = st.scenarioGen === n;
+      var lbl = n===60 ? '60 MW — Baseline' : n + ' MW';
+      return {label: lbl, border: on ? '#1D5FBF' : '#E2E4E9', bg: on ? '#E9F0FC' : '#FFFFFF', fg: on ? '#154884' : '#5B6472', pick: function(){ self.setGen(n); }};
+    });
+
+    var constrained = st.scenarioApplied && (st.appliedCrews < 3 || st.appliedGen < 60);
+    var modRows = st.scenarioApplied ? buildModifiedQueue(st.appliedCrews, st.appliedGen) : [];
+
+    var recalcBannerBg = constrained ? '#FCF0DE' : '#E2F4F1';
+    var recalcBannerBorder = constrained ? '#F0D3A0' : '#BEE3DC';
+    var recalcBannerFg = constrained ? '#8A4B08' : '#0E7A6E';
+    var recalcBannerText = st.scenarioApplied
+      ? (constrained ? 'Plan recalculated — resource constraints changed the restoration sequence and timeline.' : 'Plan recalculated — constraints match baseline, sequence unchanged.')
+      : '';
+
+    var baselineTotalH = 14, modTotalH = constrained ? (14 + (st.appliedCrews<=1?7:(st.appliedCrews===2?5:0)) + (st.appliedGen<=42?2:(st.appliedGen<=51?1:0))) : 14;
+    var basePopRestored12 = 46200, modPopRestored12 = constrained ? Math.round(46200 * (st.appliedCrews<=1?0.52:(st.appliedCrews===2?0.69:1)) * (st.appliedGen<=42?0.93:1)) : 46200;
+    var reorderedCount = modRows.filter(function(r){return r.shift && r.shift!==0;}).length;
+
+    var comparisonRows = [
+      {label:'Restoration Order', baseline:'8 assets, sequence A', modified: reorderedCount>0 ? (reorderedCount + ' assets reordered') : 'Unchanged', modColor: reorderedCount>0 ? '#B45309' : '#0E7A6E'},
+      {label:'Critical Facilities Restored By', baseline:'Hour 6 (Hospital), Hour 11 (Comms)', modified: constrained ? 'Hour 6 (Hospital), Hour 13–15 (Comms)' : 'Hour 6, Hour 11 (unchanged)', modColor: constrained ? '#B45309' : '#0E7A6E'},
+      {label:'Population Restored (12h)', baseline: fmtNum(basePopRestored12), modified: fmtNum(modPopRestored12) + (constrained ? ' (' + Math.round(100*modPopRestored12/basePopRestored12) + '%)' : ''), modColor: constrained ? '#B45309' : '#0E7A6E'},
+      {label:'Est. Total Restoration Time', baseline: baselineTotalH + 'h', modified: modTotalH + 'h' + (modTotalH>baselineTotalH ? ' (+' + (modTotalH-baselineTotalH) + 'h)' : ''), modColor: modTotalH>baselineTotalH ? '#B45309' : '#0E7A6E'}
+    ];
+
+    var modifiedQueueRows = modRows.map(function(r){
+      var shiftLabel = 'Unchanged', shiftColor = 'var(--text-tertiary)', rowBg = 'transparent';
+      if (r.shift > 0){ shiftLabel = '↑ moved up ' + r.shift; shiftColor = '#0E7A6E'; rowBg = '#F1F9F7'; }
+      else if (r.shift < 0){ shiftLabel = '↓ delayed ' + Math.abs(r.shift); shiftColor = '#B3261E'; rowBg = '#FDF3F2'; }
+      var crewLabel = r.id==='SUB-03' ? 'Crew Alpha' : (r.id==='SUB-04' ? 'Crew Bravo' : (st.appliedCrews>=3 ? 'Crew Charlie' : 'Unassigned'));
+      return {
+        seq:r.seq, id:r.id, type:r.type, score: Math.max(1, Math.round(r.score)), repairLabel: fmtRepair(r.repair),
+        shiftLabel: shiftLabel, shiftColor: shiftColor, rowBg: rowBg,
+        isSelected: st.selectedId === r.id,
+        pick: function(){ self.select(r.id); }
+      };
+    });
+    var stagedLabel = 'Staged: ' + st.scenarioCrews + (st.scenarioCrews===1?' crew':' crews') + ' · ' + st.scenarioGen + ' MW' +
+      ((st.scenarioApplied && (st.scenarioCrews===st.appliedCrews && st.scenarioGen===st.appliedGen)) ? ' (applied)' : ' — press Recalculate to apply');
+
+    // Selected asset detail
+    var sel = null;
+    var hasSelection = !!st.selectedId;
+    if (st.selectedId){
+      var a = this.assetById(st.selectedId);
+      var s = STATUS[a.status];
+      var chainIds = (a.upstream[0] ? [a.upstream[0]] : []).concat([a.id]).concat(a.downstream.length ? [a.downstream[0]] : []);
+      // build a fuller chain: upstream-of-upstream .. asset .. downstream-of-downstream
+      var full = [];
+      var u = a.upstream[0];
+      if (u){
+        var uu = self.assetById(u);
+        if (uu && uu.upstream[0]) full.push(uu.upstream[0]);
+        full.push(u);
+      }
+      full.push(a.id);
+      var d = a.downstream[0];
+      if (d){
+        full.push(d);
+        var dd = self.assetById(d);
+        if (dd && dd.downstream[0]) full.push(dd.downstream[0]);
+      }
+      var chain = full.map(function(id, i){
+        var na = self.assetById(id);
+        var ns = STATUS[na.status];
+        var isCurrent = id === a.id;
+        return {id: na.id, label: na.name, isCurrent: isCurrent, hasArrow: i < full.length-1,
+          bg: isCurrent ? '#E9F0FC' : '#FFFFFF', border: isCurrent ? '#1D5FBF' : 'var(--border)', fg: isCurrent ? '#154884' : 'var(--text)', dot: ns.dot};
+      });
+
+      var dec = st.decisions[a.id];
+      function decideStyle(kind){
+        var active = dec === kind;
+        var palette = {accepted:['#0E7A6E','#E2F4F1'], review:['#B45309','#FCF0DE'], override:['#B3261E','#FBEAE8']};
+        var p = palette[kind];
+        return active ? {border:p[0], bg:p[1], fg:p[0]} : {border:'#E2E4E9', bg:'#FFFFFF', fg:'#5B6472'};
+      }
+      var acc = decideStyle('accepted'), rev = decideStyle('review'), ovr = decideStyle('override');
+
+      var upstreamChips = (a.upstream||[]).map(function(id){
+        var ua = self.assetById(id); if (!ua) return null;
+        return {id: ua.id, name: ua.name, pick: function(){ self.select(ua.id); }};
+      }).filter(Boolean);
+      var downstreamChips = (a.downstream||[]).map(function(id){
+        var da = self.assetById(id); if (!da) return null;
+        return {id: da.id, name: da.name, pick: function(){ self.select(da.id); }};
+      }).filter(Boolean);
+
+      sel = {
+        id:a.id, name:a.name, type:a.type, statusLabel:s.label, bg:s.bg, fg:s.fg,
+        severityLabel: a.severity || 'None',
+        repairLabel: fmtRepair(a.repair),
+        crewLabel: a.crew || 'Unassigned',
+        popLabel: fmtNum(a.pop),
+        demandLabel: a.demand != null ? a.demand + ' MW' : '—',
+        hasCritical: !!a.critical, criticalFacility: a.critical,
+        hasUpstream: upstreamChips.length > 0, hasNoUpstream: upstreamChips.length === 0, upstreamChips: upstreamChips,
+        hasDownstream: downstreamChips.length > 0, hasNoDownstream: downstreamChips.length === 0, downstreamChips: downstreamChips,
+        chain: chain,
+        hasScore: a.score != null,
+        score: a.score, seq: a.seq,
+        scoreLabel: a.score != null ? String(a.score) : '—',
+        seqLabel: a.seq != null ? ('#' + a.seq + ' of 8') : 'Not currently queued',
+        breakdown: (BREAKDOWNS[a.id]||[]).map(function(b){ return {label:b.label, value:b.value, pct: Math.round((b.value/32)*100)}; }),
+        explanation: EXPLANATIONS[a.id] || 'This asset does not currently carry a restoration priority score — it is either operational or awaiting upstream restoration before scoring applies.',
+        acceptBorder: acc.border, acceptBg: acc.bg, acceptFg: acc.fg,
+        reviewBorder: rev.border, reviewBg: rev.bg, reviewFg: rev.fg,
+        overrideBorder: ovr.border, overrideBg: ovr.bg, overrideFg: ovr.fg,
+        decisionLabel: dec === 'accepted' ? 'Accepted for planning' : (dec === 'review' ? 'Flagged for review' : (dec === 'override' ? 'Sequence overridden' : 'Pending engineer review'))
+      };
+    }
+
+    return {
+      isOverview: st.view==='overview', isInfrastructure: st.view==='infrastructure', isRestoration: st.view==='restoration', isScenarios: st.view==='scenarios',
+      viewTitle: titles[st.view],
+      navBg: navBg, navColor: navColor, navWeight: navWeight,
+      goOverview: function(){ self.setView('overview'); }, goInfrastructure: function(){ self.setView('infrastructure'); },
+      goRestoration: function(){ self.setView('restoration'); }, goScenarios: function(){ self.setView('scenarios'); },
+      summaryCards: summaryCards, criticalPathNodes: criticalPathNodes, queuePreview: queuePreview,
+      legend: legend, mapNodes: mapNodes, mapLinks: mapLinks, allAssetsRows: allAssetsRows, allAssetsCount: allAssetsCount,
+      priorityQueue: priorityQueue, queueSourceLabel: 'Baseline sequence · Sector 7',
+      crewOptions: crewOptions, genOptions: genOptions, stagedLabel: stagedLabel,
+      scenarioApplied: st.scenarioApplied, scenarioNotApplied: !st.scenarioApplied, appliedCrews: st.appliedCrews, appliedGen: st.appliedGen,
+      crewPlural: st.appliedCrews===1 ? '' : 's',
+      recalculate: function(){ self.recalc(); }, resetScenario: function(){ self.resetScenario(); },
+      recalcBannerBg: recalcBannerBg, recalcBannerBorder: recalcBannerBorder, recalcBannerFg: recalcBannerFg, recalcBannerText: recalcBannerText,
+      comparisonRows: comparisonRows, modifiedQueueRows: modifiedQueueRows,
+      hasSelection: hasSelection, sel: sel,
+      closeDetail: function(){ self.close(); }, stop: function(e){ self.stopProp(e); },
+      acceptAsset: function(){ self.decide('accepted'); }, reviewAsset: function(){ self.decide('review'); }, overrideAsset: function(){ self.decide('override'); }
+    };
+  }
+}
+</script>
+</body>
+</html>
