@@ -24,7 +24,8 @@ import type {
 } from "@/types/overview";
 import type { InfrastructureNetwork, NetworkEdge, NetworkNode } from "@/types/infrastructure";
 import type { RestorationPlanItem } from "@/types/restorationPlan";
-import type { ScoredAsset } from "@/lib/restoration/scoring";
+import type { ScoredAsset, ScoringInput } from "@/lib/restoration/scoring";
+import { evaluateScenario } from "@/lib/restoration/scenario";
 import { sequenceRestoration } from "@/lib/restoration/sequencing";
 
 // Frontend service boundary: UI reads through these functions rather than
@@ -81,8 +82,28 @@ export function getScenario(): Promise<RestorationScenario> {
   return Promise.resolve(mockBaselineScenario);
 }
 
+function scenarioInput(): ScoringInput {
+  return {
+    assets: mockAssets,
+    dependencies: mockDependencies,
+    criticalFacilities: mockCriticalFacilities,
+    crews: mockCrews,
+    serviceAreas: mockServiceAreas,
+  };
+}
+
+/** Runs the deterministic scenario evaluator (scoring -> sequencing) on the baseline dataset. */
 export function getScenarioResult(scenario: RestorationScenario): Promise<ScenarioResult> {
-  return Promise.resolve({ scenarioId: scenario.id, recommendations: buildRecommendations().map((r) => r.rec) });
+  return Promise.resolve(evaluateScenario(scenarioInput(), scenario));
+}
+
+/** Data the Scenario page needs to re-evaluate scenarios in the browser with the same engines. */
+export function getScenarioWorkspaceData(): Promise<{
+  input: ScoringInput;
+  baseline: RestorationScenario;
+  assets: GridAsset[];
+}> {
+  return Promise.resolve({ input: scenarioInput(), baseline: mockBaselineScenario, assets: mockAssets });
 }
 
 export function getServiceAreas(): Promise<ServiceArea[]> {

@@ -53,9 +53,56 @@ export interface RestorationScenario {
   generationCapacityMw: number;
 }
 
+/** Aggregate metrics for one evaluated scenario. See docs/scenario-model.md for definitions. */
+export interface ScenarioMetrics {
+  availableCrews: number;
+  /** Sum of estimated repair hours over sequenced assets (missing estimates count as 0). */
+  totalRepairWorkHours: number;
+  /** Crew-aware planning estimate in hours; null when there are no crews to do the work. */
+  estimatedPlanDurationHours: number | null;
+  /** Aggregate capacity screening against offline service-area demand. Not power flow. */
+  generationCapacityMw: number;
+  demandServedMw: number;
+  demandUnservedMw: number;
+  populationServed: number;
+  populationUnserved: number;
+  unservedServiceAreaIds: string[];
+}
+
+export interface ScenarioFactorContribution {
+  factor: string;
+  contribution: number;
+}
+
 export interface ScenarioResult {
   scenarioId: string;
+  scenario: RestorationScenario;
   recommendations: RestorationRecommendation[];
+  metrics: ScenarioMetrics;
+  /** Per-asset scoring factor contributions, used to explain differences between scenarios. */
+  factorContributions: Record<string, ScenarioFactorContribution[]>;
+  /** Crews kept in / removed from the planning roster by the crew-count rule. */
+  crewIds: string[];
+  removedCrewIds: string[];
+}
+
+export interface ScenarioFactorChange {
+  factor: string;
+  from: number;
+  to: number;
+}
+
+/** Difference for one asset between the baseline and a modified scenario. */
+export interface ScenarioChange {
+  assetId: string;
+  baselineSequence: number;
+  modifiedSequence: number;
+  baselineScore: number;
+  modifiedScore: number;
+  changedFactors: ScenarioFactorChange[];
+  positionChanged: boolean;
+  scoreChanged: boolean;
+  explanation: string;
 }
 
 /**

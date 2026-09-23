@@ -1,17 +1,17 @@
-import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { ScenarioWorkspace } from "@/components/scenarios/ScenarioWorkspace";
+import { getScenarioWorkspaceData } from "@/services/restorationService";
 
-export default function ScenariosPage() {
+export default async function ScenariosPage() {
+  const { input, baseline, assets } = await getScenarioWorkspaceData();
+
   return (
     <div>
       <PageHeader
         title="Scenarios"
-        subtitle="Adjust crew and generation availability to compare restoration plans."
+        subtitle="Adjust planning conditions and recalculate the restoration plan with the deterministic scoring and sequencing engines."
       />
-      <Card className="placeholder-card">
-        Scenario controls and the baseline-versus-modified comparison will appear
-        here in a future milestone.
-      </Card>
+      <ScenarioWorkspace input={input} baselineScenario={baseline} assets={assets} />
     </div>
   );
 }
