@@ -4,6 +4,7 @@ import {
   mockCrews,
   mockCriticalFacilities,
   mockDependencies,
+  mockPriorityFactors,
   mockRecommendations,
   mockServiceAreas,
 } from "@/data/mockGridData";
@@ -24,6 +25,7 @@ import type {
   PriorityPreviewItem,
 } from "@/types/overview";
 import type { InfrastructureNetwork, NetworkEdge, NetworkNode } from "@/types/infrastructure";
+import type { RestorationPlanItem } from "@/types/restorationPlan";
 
 // Frontend service boundary: UI reads through these functions rather than
 // touching mock data directly. Each call returns a Promise so a future API
@@ -71,6 +73,15 @@ function tierForAsset(asset: GridAsset): number {
   return index === -1 ? NETWORK_TIER_TYPES.length - 1 : index;
 }
 
+/** Direct upstream/downstream asset ids for an asset, derived from mockDependencies. */
+function upstreamAssetIdsFor(assetId: string): string[] {
+  return mockDependencies.filter((dep) => dep.downstreamAssetId === assetId).map((dep) => dep.upstreamAssetId);
+}
+
+function downstreamAssetIdsFor(assetId: string): string[] {
+  return mockDependencies.filter((dep) => dep.upstreamAssetId === assetId).map((dep) => dep.downstreamAssetId);
+}
+
 /**
  * Builds the Infrastructure page's network view model: a simple tiered
  * layout position plus immediate upstream/downstream asset ids per node,
@@ -92,12 +103,8 @@ export function getInfrastructureNetwork(): Promise<InfrastructureNetwork> {
       row,
       isCriticalFacility: isFacilityAsset(asset),
       criticalFacility: asset.criticalFacility ?? null,
-      upstreamAssetIds: mockDependencies
-        .filter((dep) => dep.downstreamAssetId === asset.id)
-        .map((dep) => dep.upstreamAssetId),
-      downstreamAssetIds: mockDependencies
-        .filter((dep) => dep.upstreamAssetId === asset.id)
-        .map((dep) => dep.downstreamAssetId),
+      upstreamAssetIds: upstreamAssetIdsFor(asset.id),
+      downstreamAssetIds: downstreamAssetIdsFor(asset.id),
     };
   });
 
@@ -108,6 +115,43 @@ export function getInfrastructureNetwork(): Promise<InfrastructureNetwork> {
   }));
 
   return Promise.resolve({ nodes, edges, tierCount: NETWORK_TIER_TYPES.length + 1 });
+}
+
+/**
+ * Builds the Restoration Plan page's ranked queue view model: each mock
+ * recommendation joined with its asset, assigned crew, direct dependency
+ * context, and illustrative priority-factor breakdown, sorted by
+ * recommended sequence.
+ */
+export function getRestorationPlan(): Promise<RestorationPlanItem[]> {
+  const assetById = new Map(mockAssets.map((a) => [a.id, a]));
+  const crewById = new Map(mockCrews.map((c) => [c.id, c]));
+
+  const items: RestorationPlanItem[] = [...mockRecommendations]
+    .sort((a, b) => a.recommendedSequence - b.recommendedSequence)
+    .flatMap((rec) => {
+      const asset = assetById.get(rec.assetId);
+      if (!asset) return [];
+      return [
+        {
+          assetId: rec.assetId,
+          asset,
+          recommendedSequence: rec.recommendedSequence,
+          priorityScore: rec.priorityScore,
+          explanation: rec.explanation,
+          priorityFactors: mockPriorityFactors[rec.assetId] ?? [],
+          assignedCrew: asset.assignedCrewId ? (crewById.get(asset.assignedCrewId) ?? null) : null,
+          upstream: upstreamAssetIdsFor(rec.assetId)
+            .map((id) => assetById.get(id))
+            .filter((a): a is GridAsset => a != null),
+          downstream: downstreamAssetIdsFor(rec.assetId)
+            .map((id) => assetById.get(id))
+            .filter((a): a is GridAsset => a != null),
+        },
+      ];
+    });
+
+  return Promise.resolve(items);
 }
 
 function isFacilityAsset(asset: GridAsset): boolean {

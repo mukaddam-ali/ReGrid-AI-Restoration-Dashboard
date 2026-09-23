@@ -7,6 +7,7 @@ import type {
   RestorationScenario,
   ServiceArea,
 } from "@/types/grid";
+import type { PriorityFactor } from "@/types/restorationPlan";
 
 // Simulated prototype dataset — not real utility or ABB data.
 export const mockAssets: GridAsset[] = [
@@ -196,6 +197,40 @@ export const mockRecommendations: RestorationRecommendation[] = [
     explanation: "Final leg into the hospital; only effective once SUB-04 is restored.",
   },
 ];
+
+// Illustrative, hand-authored breakdown of each recommendation's mock
+// priority score. Each asset's contributions sum to its priorityScore in
+// mockRecommendations above. Not a real scoring formula.
+export const mockPriorityFactors: Record<string, PriorityFactor[]> = {
+  "SUB-04": [
+    { label: "Critical Facility Impact", contribution: 40 },
+    { label: "Population Impact", contribution: 30 },
+    { label: "Dependency Impact", contribution: 10 },
+    { label: "Repair Feasibility", contribution: 10 },
+    { label: "Resource Availability", contribution: 4 },
+  ],
+  "LINE-12": [
+    { label: "Critical Facility Impact", contribution: 20 },
+    { label: "Population Impact", contribution: 18 },
+    { label: "Dependency Impact", contribution: 35 },
+    { label: "Repair Feasibility", contribution: 10 },
+    { label: "Resource Availability", contribution: 5 },
+  ],
+  "SUB-02": [
+    { label: "Critical Facility Impact", contribution: 28 },
+    { label: "Population Impact", contribution: 14 },
+    { label: "Dependency Impact", contribution: 20 },
+    { label: "Repair Feasibility", contribution: 12 },
+    { label: "Resource Availability", contribution: 7 },
+  ],
+  "FEEDER-03": [
+    { label: "Critical Facility Impact", contribution: 32 },
+    { label: "Population Impact", contribution: 16 },
+    { label: "Dependency Impact", contribution: 12 },
+    { label: "Repair Feasibility", contribution: 8 },
+    { label: "Resource Availability", contribution: 2 },
+  ],
+};
 
 export const mockBaselineScenario: RestorationScenario = {
   id: "baseline",

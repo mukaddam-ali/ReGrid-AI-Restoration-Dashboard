@@ -1,18 +1,17 @@
-import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { RestorationPlanWorkspace } from "@/components/restoration-plan/RestorationPlanWorkspace";
+import { getRestorationPlan } from "@/services/restorationService";
 
-export default function RestorationPlanPage() {
+export default async function RestorationPlanPage() {
+  const items = await getRestorationPlan();
+
   return (
     <div>
       <PageHeader
         title="Restoration Plan"
-        subtitle="Ranked restoration recommendations for engineering review."
+        subtitle="Simulated recommended repair sequence, open for engineering review. AI recommends — engineers decide."
       />
-      <Card className="placeholder-card">
-        The restoration priority queue, scoring breakdown, and engineer decision
-        controls (Accept, Flag for Review, Override) will appear here in a future
-        milestone.
-      </Card>
+      <RestorationPlanWorkspace items={items} />
     </div>
   );
 }
