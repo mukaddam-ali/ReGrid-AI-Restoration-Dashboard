@@ -24,7 +24,8 @@ import type {
 } from "@/types/overview";
 import type { InfrastructureNetwork, NetworkEdge, NetworkNode } from "@/types/infrastructure";
 import type { RestorationPlanItem } from "@/types/restorationPlan";
-import { scoreRestorationCandidates, type ScoredAsset } from "@/lib/restoration/scoring";
+import type { ScoredAsset } from "@/lib/restoration/scoring";
+import { sequenceRestoration } from "@/lib/restoration/sequencing";
 
 // Frontend service boundary: UI reads through these functions rather than
 // touching mock data directly. Each call returns a Promise so a future API
@@ -47,29 +48,26 @@ export function getCrews(): Promise<RepairCrew[]> {
 }
 
 /**
- * Ranks scored candidates by priority score. Sequence here is score rank only:
- * it does NOT yet account for upstream dependencies (see ScoredAsset.requiresUpstreamRestoration).
+ * Single source of recommendations: scores come from the scoring engine and
+ * recommendedSequence from the dependency-aware sequencing engine.
  */
 function buildRecommendations(): { rec: RestorationRecommendation; scored: ScoredAsset }[] {
-  const scored = scoreRestorationCandidates({
+  const sequenced = sequenceRestoration({
     assets: mockAssets,
     dependencies: mockDependencies,
     criticalFacilities: mockCriticalFacilities,
     crews: mockCrews,
     serviceAreas: mockServiceAreas,
   });
-  return scored.map((s, index) => {
-    const top = [...s.factors].sort((a, b) => b.contribution - a.contribution)[0];
-    const blocked = s.requiresUpstreamRestoration
-      ? ` Requires upstream restoration first: ${s.blockingUpstreamAssetIds.join(", ")}.`
-      : "";
+  return sequenced.map((s) => {
+    const top = [...s.scored.factors].sort((a, b) => b.contribution - a.contribution)[0];
     return {
-      scored: s,
+      scored: s.scored,
       rec: {
         assetId: s.assetId,
-        priorityScore: s.totalScore,
-        recommendedSequence: index + 1,
-        explanation: `Largest contributor: ${top.factor}. ${top.explanation}${blocked}`,
+        priorityScore: s.priorityScore,
+        recommendedSequence: s.recommendedSequence,
+        explanation: `${s.sequencingReason} Largest score contributor: ${top.factor}.`,
       },
     };
   });
@@ -149,7 +147,7 @@ export function getInfrastructureNetwork(): Promise<InfrastructureNetwork> {
  * Builds the Restoration Plan page's ranked queue view model: each mock
  * recommendation (from the deterministic scoring engine) joined with its
  * asset, assigned crew, direct dependency context, and factor breakdown,
- * sorted by score rank.
+ * sorted by recommended sequence.
  */
 export function getRestorationPlan(): Promise<RestorationPlanItem[]> {
   const assetById = new Map(mockAssets.map((a) => [a.id, a]));

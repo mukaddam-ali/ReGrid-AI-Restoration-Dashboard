@@ -18,7 +18,7 @@ export function RestorationQueue({
         <div>
           <div className="panel-title">Restoration Queue</div>
           <div className="panel-subtitle" style={{ marginBottom: 0 }}>
-            ReGrid&apos;s recommended repair sequence, ranked by simulated priority score.
+            Dependency-aware restoration order. Priority score ranks assets among those currently feasible to restore.
           </div>
         </div>
       </div>

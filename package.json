@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test src/lib/restoration/scoring.test.ts"
+    "test": "node --test src/lib/restoration/scoring.test.ts src/lib/restoration/sequencing.test.ts"
   },
   "dependencies": {
     "next": "16.3.5",

@@ -41,7 +41,7 @@ Missing population, repair hours, or facility links contribute 0 for that factor
 
 ## Dependency safety (not applied to the score)
 
-Each result exposes `upstreamAssetIds`, `blockingUpstreamAssetIds` (direct upstream assets that are damaged / under repair / critical) and `requiresUpstreamRestoration`. The score is **not** reduced for blocked assets: a high score does not mean the asset can deliver service immediately. The current `recommendedSequence` is score rank only; dependency-aware sequencing is a later milestone.
+Each result exposes `upstreamAssetIds`, `blockingUpstreamAssetIds` (direct upstream assets that are damaged / under repair / critical) and `requiresUpstreamRestoration`. The score is **not** reduced for blocked assets: a high score does not mean the asset can deliver service immediately. The current `recommendedSequence` is produced separately by the sequencing engine (see `docs/sequencing-model.md`).
 
 ## Limitations
 
