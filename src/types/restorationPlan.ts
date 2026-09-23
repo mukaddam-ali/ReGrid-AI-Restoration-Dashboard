@@ -7,10 +7,12 @@ export type RecommendationReviewStatus =
   | "flagged"
   | "sequence_overridden";
 
-/** One illustrative contributor to a recommendation's mock priority score. */
+/** One contributor to a recommendation's deterministic priority score. */
 export interface PriorityFactor {
   label: string;
   contribution: number;
+  maxContribution: number;
+  explanation: string;
 }
 
 export interface RestorationPlanItem {

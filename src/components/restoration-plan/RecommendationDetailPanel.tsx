@@ -147,8 +147,8 @@ export function RecommendationDetailPanel({
       <div>
         <div className="plan-section-title">Why this priority?</div>
         <p className="plan-section-note">
-          Simulated priority factors — illustrative prototype scoring breakdown, not ReGrid&apos;s
-          final scoring formula.
+          Deterministic prototype scoring on simulated data — decision support, not a validated
+          utility restoration standard.
         </p>
         <div className="factor-list">
           {item.priorityFactors.map((factor) => (

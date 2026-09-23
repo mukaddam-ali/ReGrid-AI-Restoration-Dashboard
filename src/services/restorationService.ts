@@ -4,8 +4,6 @@ import {
   mockCrews,
   mockCriticalFacilities,
   mockDependencies,
-  mockPriorityFactors,
-  mockRecommendations,
   mockServiceAreas,
 } from "@/data/mockGridData";
 import type {
@@ -26,6 +24,7 @@ import type {
 } from "@/types/overview";
 import type { InfrastructureNetwork, NetworkEdge, NetworkNode } from "@/types/infrastructure";
 import type { RestorationPlanItem } from "@/types/restorationPlan";
+import { scoreRestorationCandidates, type ScoredAsset } from "@/lib/restoration/scoring";
 
 // Frontend service boundary: UI reads through these functions rather than
 // touching mock data directly. Each call returns a Promise so a future API
@@ -47,8 +46,37 @@ export function getCrews(): Promise<RepairCrew[]> {
   return Promise.resolve(mockCrews);
 }
 
+/**
+ * Ranks scored candidates by priority score. Sequence here is score rank only:
+ * it does NOT yet account for upstream dependencies (see ScoredAsset.requiresUpstreamRestoration).
+ */
+function buildRecommendations(): { rec: RestorationRecommendation; scored: ScoredAsset }[] {
+  const scored = scoreRestorationCandidates({
+    assets: mockAssets,
+    dependencies: mockDependencies,
+    criticalFacilities: mockCriticalFacilities,
+    crews: mockCrews,
+    serviceAreas: mockServiceAreas,
+  });
+  return scored.map((s, index) => {
+    const top = [...s.factors].sort((a, b) => b.contribution - a.contribution)[0];
+    const blocked = s.requiresUpstreamRestoration
+      ? ` Requires upstream restoration first: ${s.blockingUpstreamAssetIds.join(", ")}.`
+      : "";
+    return {
+      scored: s,
+      rec: {
+        assetId: s.assetId,
+        priorityScore: s.totalScore,
+        recommendedSequence: index + 1,
+        explanation: `Largest contributor: ${top.factor}. ${top.explanation}${blocked}`,
+      },
+    };
+  });
+}
+
 export function getRecommendations(): Promise<RestorationRecommendation[]> {
-  return Promise.resolve(mockRecommendations);
+  return Promise.resolve(buildRecommendations().map((r) => r.rec));
 }
 
 export function getScenario(): Promise<RestorationScenario> {
@@ -56,7 +84,7 @@ export function getScenario(): Promise<RestorationScenario> {
 }
 
 export function getScenarioResult(scenario: RestorationScenario): Promise<ScenarioResult> {
-  return Promise.resolve({ scenarioId: scenario.id, recommendations: mockRecommendations });
+  return Promise.resolve({ scenarioId: scenario.id, recommendations: buildRecommendations().map((r) => r.rec) });
 }
 
 export function getServiceAreas(): Promise<ServiceArea[]> {
@@ -119,17 +147,16 @@ export function getInfrastructureNetwork(): Promise<InfrastructureNetwork> {
 
 /**
  * Builds the Restoration Plan page's ranked queue view model: each mock
- * recommendation joined with its asset, assigned crew, direct dependency
- * context, and illustrative priority-factor breakdown, sorted by
- * recommended sequence.
+ * recommendation (from the deterministic scoring engine) joined with its
+ * asset, assigned crew, direct dependency context, and factor breakdown,
+ * sorted by score rank.
  */
 export function getRestorationPlan(): Promise<RestorationPlanItem[]> {
   const assetById = new Map(mockAssets.map((a) => [a.id, a]));
   const crewById = new Map(mockCrews.map((c) => [c.id, c]));
 
-  const items: RestorationPlanItem[] = [...mockRecommendations]
-    .sort((a, b) => a.recommendedSequence - b.recommendedSequence)
-    .flatMap((rec) => {
+  const items: RestorationPlanItem[] = buildRecommendations()
+    .flatMap(({ rec, scored }) => {
       const asset = assetById.get(rec.assetId);
       if (!asset) return [];
       return [
@@ -139,7 +166,12 @@ export function getRestorationPlan(): Promise<RestorationPlanItem[]> {
           recommendedSequence: rec.recommendedSequence,
           priorityScore: rec.priorityScore,
           explanation: rec.explanation,
-          priorityFactors: mockPriorityFactors[rec.assetId] ?? [],
+          priorityFactors: scored.factors.map((f) => ({
+            label: f.factor,
+            contribution: f.contribution,
+            maxContribution: f.maxContribution,
+            explanation: f.explanation,
+          })),
           assignedCrew: asset.assignedCrewId ? (crewById.get(asset.assignedCrewId) ?? null) : null,
           upstream: upstreamAssetIdsFor(rec.assetId)
             .map((id) => assetById.get(id))
@@ -235,8 +267,8 @@ export function getOverviewSummary(): Promise<OverviewSummary> {
   ];
 
   const assetById = new Map(mockAssets.map((a) => [a.id, a]));
-  const topPriorities: PriorityPreviewItem[] = [...mockRecommendations]
-    .sort((a, b) => a.recommendedSequence - b.recommendedSequence)
+  const topPriorities: PriorityPreviewItem[] = buildRecommendations()
+    .map(({ rec }) => rec)
     .slice(0, 4)
     .map((rec) => {
       const asset = assetById.get(rec.assetId);
