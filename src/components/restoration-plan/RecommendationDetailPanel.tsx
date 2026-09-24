@@ -24,7 +24,9 @@ function DependencyList({ title, assets, emptyLabel }: { title: string; assets: 
           {assets.map((asset) => (
             <div key={asset.id} className="detail-chip">
               <span className="mono detail-chip-id">{asset.id}</span>
-              <span className="detail-chip-name">{asset.name}</span>
+              <span className="detail-chip-name" title={asset.name}>
+                {asset.name}
+              </span>
             </div>
           ))}
         </div>

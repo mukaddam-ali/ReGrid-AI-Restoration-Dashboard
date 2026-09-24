@@ -698,8 +698,13 @@ a {
 
 .detail-deps {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+
+.detail-deps-column,
+.detail-chip-list {
+  min-width: 0;
 }
 
 .detail-deps-title {
@@ -727,6 +732,7 @@ a {
   background: var(--surface);
   text-align: left;
   width: 100%;
+  min-width: 0;
 }
 
 .detail-chip:hover {
@@ -741,6 +747,8 @@ a {
 }
 
 .detail-chip-name {
+  min-width: 0;
+  flex: 1 1 auto;
   font-size: 10.5px;
   color: var(--text-tertiary);
   overflow: hidden;
