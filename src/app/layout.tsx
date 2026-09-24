@@ -17,8 +17,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ReGrid AI — Restoration Planner",
-  description: "Engineering decision-support prototype for electricity restoration planning.",
+  title: "ReGrid AI — Smart Electricity Restoration Planner",
+  description:
+    "Simulated decision-support prototype: what to repair first, in what sequence, and why. AI recommends. Engineers decide.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

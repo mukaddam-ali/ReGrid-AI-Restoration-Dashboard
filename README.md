@@ -1,37 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ReGrid AI
 
-## Getting Started
+ReGrid AI is a simulated infrastructure-restoration decision-support prototype developed for ABB Accelerator 2026.
 
-First, run the development server:
+It addresses one question: **given damaged electrical infrastructure and limited recovery resources, what should engineers repair first, in what sequence, and why?**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Key Features
+
+- Deterministic restoration priority scoring (0–100, five weighted, documented factors)
+- Dependency-aware sequencing (upstream repairs come before the assets that depend on them)
+- Infrastructure dependency visualization
+- Scenario recalculation (repair-crew count and generation capacity) with a baseline-vs-modified comparison
+- Explainable recommendations (per-factor score breakdown and sequencing reason)
+- Engineer review workflow (accept, flag, or override a recommended sequence position)
+- Simulated prototype dataset
+
+## Human-in-the-Loop
+
+**AI recommends. Engineers decide.**
+
+ReGrid does not switch electrical equipment, energize infrastructure, control SCADA, execute repairs, or replace qualified engineers. Its output is a recommendation for engineers to review.
+
+## How It Works
+
+```
+Simulated infrastructure data
+  → deterministic scoring
+  → dependency-aware sequencing
+  → scenario evaluation
+  → dashboard / explanations
+  → engineer review
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The scoring, sequencing and scenario logic lives in `src/lib/restoration/` as pure, framework-independent TypeScript. The UI only displays and re-invokes it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Current Prototype Scope
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Implemented: Overview, Infrastructure, Restoration Plan and Scenarios pages; the scoring, sequencing and scenario engines; engineer review controls (held in browser state only, not persisted).
 
-## Learn More
+Not implemented, and not claimed:
 
-To learn more about Next.js, take a look at the following resources:
+- All data is **simulated**. This is **not utility-grade software**.
+- No power-flow validation, and no voltage or frequency analysis
+- No switching simulation
+- No autonomous grid control, and no SCADA integration
+- No backend, database, authentication, or AI/LLM component
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See [docs/limitations.md](docs/limitations.md).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Technology
 
-## Deploy on Vercel
+- Next.js (App Router), React, TypeScript
+- Deterministic domain algorithms (no ML, no external services)
+- Node.js built-in test runner
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Run Locally
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# ReGrid-AI-Restoration-Dashboard" 
+Requires Node.js 20.9 or newer. No API keys or environment variables are needed.
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:3000 (it redirects to the Overview page).
+
+Production build:
+
+```bash
+npm run build
+npm start
+```
+
+The build downloads the IBM Plex fonts from Google Fonts, so it needs internet access.
+
+## Tests
+
+```bash
+npm test
+```
+
+Runs the scoring, sequencing and scenario unit tests (40 tests at the time of writing). The tests are executed directly from TypeScript, which requires Node.js 22.18 or newer.
+
+Other checks: `npm run typecheck`, `npm run lint`.
+
+## Documentation
+
+- [Scoring model](docs/scoring-model.md)
+- [Sequencing model](docs/sequencing-model.md)
+- [Scenario model](docs/scenario-model.md)
+- [Limitations](docs/limitations.md)
+- [Run instructions](docs/run-instructions.md)
+
+`design-reference/` holds the design mockup used as a visual reference only. It is not imported by the application.
+
+## Competition
+
+Developed as a prototype submission for ABB Accelerator 2026. It does not imply ABB endorsement, deployment, partnership, or production use.
